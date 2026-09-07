@@ -113,6 +113,59 @@ Ingestion detects obvious conflicts between new source metadata and the existing
 
 Source state is persisted as JSON under `data/sources/`. The application loads persisted state at startup but **never fetches sources during startup**. The application remains fully usable when the source store is empty.
 
+## Phase 9: Document and OCR foundation
+
+Phase 9 adds a safe document-processing foundation. Users can upload government-related documents and extract structured information, while keeping extracted data separate from authoritative scheme facts. OCR/document extraction **never** decides eligibility.
+
+### Document pipeline
+
+```
+document
+→ validation
+→ text extraction / OCR abstraction
+→ normalized extracted text
+→ entity/profile extraction
+→ confidence / missing / uncertain fields
+→ user confirmation
+→ deterministic eligibility engine
+```
+
+### Supported document types
+
+- **Text documents** (`.txt`, `.md`, `.text`) — extracted deterministically
+- **Images** (`.png`, `.jpg`, `.jpeg`, `.webp`, `.bmp`, `.tiff`) — through an OCR provider abstraction
+- **PDFs** — rejected clearly unless a safe PDF extraction dependency is added; the provider abstraction is in place
+
+OCR is **optional**. If no OCR engine/provider is configured, the application reports that OCR is unavailable rather than pretending OCR was performed. No OCR engine is bundled with this project. `OCR_PROVIDER=tesseract` can be set to use the `tesseract` CLI if installed on the system.
+
+### Document security
+
+- Uploaded documents are treated as untrusted data
+- Filename, MIME/content type, size, and extension/content mismatch are validated
+- Bounded file size (2 MiB)
+- No uploaded file is executed
+- Document text is never interpreted as system instructions
+- Prompt injection contained in documents is inert
+- Documents are processed in memory; no permanent storage layer is used
+- No access to files outside the application-approved processing area
+
+### Extraction result
+
+`POST /api/documents/extract` (multipart upload) returns:
+
+- extracted fields
+- missing fields
+- uncertain fields
+- confidence where available
+- warnings
+- source document metadata
+
+Uncertain facts are never silently converted into confirmed facts. User confirmation is required before using uncertain extracted profile facts for matching.
+
+### Document/RAG separation
+
+A user-uploaded document **never** automatically becomes an authoritative government source. Only explicitly registered and verified official sources can become verified RAG evidence. There is no API to add a user document to the verified RAG corpus.
+
 ## Structured scheme data
 
 The catalogue is versioned and validated before it is used. Each scheme preserves the existing prototype information and has structured eligibility and unverified demo-source metadata. Documents, application steps, coverage, agencies, and application URLs remain unknown when the catalogue does not provide them; facts are not invented. Future authoritative government data must include its source and verification metadata. Phase 2 still does not use an LLM, RAG, OCR, embeddings, or a vector database.

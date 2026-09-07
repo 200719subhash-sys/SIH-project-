@@ -187,6 +187,21 @@ class SupersedeRequest(BaseModel):
     replacement_source_id: str | None = None
 
 
+class DocumentExtractResponse(BaseModel):
+    filename: str
+    content_type: str
+    size_bytes: int
+    extraction_method: str
+    ocr_used: bool = False
+    normalized_text: str
+    warnings: list[str] = Field(default_factory=list)
+    profile: ExtractedProfile | None = None
+    extracted_fields: list[str] = Field(default_factory=list)
+    missing_fields: list[str] = Field(default_factory=list)
+    uncertain_fields: list[str] = Field(default_factory=list)
+    needs_clarification: bool = False
+
+
 class SourceRecord(BaseModel):
     source_id: str = Field(min_length=1)
     source_name: str = Field(min_length=1)

@@ -1,16 +1,18 @@
 import os
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile
 from pathlib import Path
 
 from .allowlist import load_allowlist
 from .catalogue import SchemeDataError, load_catalogue
 from .chat import orchestrate_chat
+from .documents import DocumentExtractionError, DocumentValidationError, extract_profile_from_document
 from .fetcher import HttpxFetcher
 from .ingestion import IngestionError, IngestionService
 from .matching import match_schemes, score_scheme
-from .models import ChatRequest, ChatResponse, IngestRequest, MatchProfile, Profile, ProfileExtractionRequest, RagQueryRequest, RagQueryResponse, RetrievalRequest, RetrievalResponse, SourceRecord, SupersedeRequest, TextMatchResponse, Scheme
+from .models import ChatRequest, ChatResponse, DocumentExtractResponse, IngestRequest, MatchProfile, Profile, ProfileExtractionRequest, RagQueryRequest, RagQueryResponse, RetrievalRequest, RetrievalResponse, SourceRecord, SupersedeRequest, TextMatchResponse, Scheme
+from .ocr import configured_ocr_provider
 from .profile_extraction import extracted_to_profile, extract_profile
 from .rag import DEFAULT_RAG_CORPUS
 from .retrieval import retrieve_schemes
@@ -149,6 +151,52 @@ def chat(req: ChatRequest):
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=503, detail="The assistant is temporarily unavailable.") from exc
+
+
+@app.post("/api/documents/extract", response_model=DocumentExtractResponse)
+def document_extract(file: UploadFile):
+    """Extract structured profile information from an uploaded document.
+
+    The document is treated as untrusted data.  Extracted facts are
+    *not* authoritative and must be confirmed by the user before being
+    used for matching.  A user document can never become verified
+    government evidence.
+    """
+    try:
+        data = file.file.read()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="could not read uploaded document") from exc
+    finally:
+        file.file.close()
+
+    try:
+        document, result = extract_profile_from_document(
+            data,
+            file.filename or "document.txt",
+            file.content_type or "application/octet-stream",
+            configured_ocr_provider(),
+        )
+    except DocumentValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except DocumentExtractionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="document extraction failed") from exc
+
+    return DocumentExtractResponse(
+        filename=document.metadata.filename,
+        content_type=document.metadata.content_type,
+        size_bytes=document.metadata.size_bytes,
+        extraction_method=document.extraction_method,
+        ocr_used=document.ocr_used,
+        normalized_text=document.normalized_text,
+        warnings=document.warnings,
+        profile=result.profile,
+        extracted_fields=result.extracted_fields,
+        missing_fields=result.missing_fields,
+        uncertain_fields=result.uncertain_fields,
+        needs_clarification=result.needs_clarification,
+    )
 
 
 # ----------------------------------------------------------------------
