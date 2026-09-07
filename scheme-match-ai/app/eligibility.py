@@ -67,7 +67,10 @@ def evaluate_eligibility(scheme: Scheme, profile: Profile) -> EligibilityResult:
     )
     for name, required, value, failure_message, pass_message in boolean_rules:
         if required is True:
-            rules.append(_rule(name, "passed" if value else "failed", pass_message if value else failure_message))
+            if value is None:
+                rules.append(_rule(name, "unknown", f"Your {name} status is needed to determine eligibility."))
+            else:
+                rules.append(_rule(name, "passed" if value else "failed", pass_message if value else failure_message))
 
     if criteria.business_stages:
         if not _known(profile.business_stage):

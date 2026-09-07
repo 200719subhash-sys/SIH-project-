@@ -5,7 +5,8 @@ from pathlib import Path
 
 from .catalogue import SchemeDataError, load_catalogue
 from .matching import match_schemes, score_scheme
-from .models import ChatRequest, Profile, Scheme
+from .models import ChatRequest, MatchProfile, Profile, ProfileExtractionRequest, TextMatchResponse, Scheme
+from .profile_extraction import extracted_to_profile, extract_profile
 
 BASE = Path(__file__).resolve().parent.parent
 DATA = BASE / "data" / "schemes.json"
@@ -31,8 +32,7 @@ def schemes():
     except SchemeDataError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-@app.post("/api/match")
-def match(p: Profile):
+def _match_payload(p: Profile) -> dict:
     try:
         schemes = load_schemes()
         results, needs_information = match_schemes(schemes, p)
@@ -52,6 +52,35 @@ def match(p: Profile):
         "needs_information": [result.model_dump(mode="json") for result in needs_information],
         "not_eligible": [result.model_dump(mode="json") for result in not_eligible],
     }
+
+
+@app.post("/api/match")
+def match(p: MatchProfile):
+    return _match_payload(p)
+
+
+@app.post("/api/profile/extract")
+def extract_profile_endpoint(request: ProfileExtractionRequest):
+    try:
+        return extract_profile(request.text).model_dump(mode="json")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Natural-language profile extraction is unavailable.") from exc
+
+
+@app.post("/api/match/text", response_model=TextMatchResponse)
+def match_text(request: ProfileExtractionRequest):
+    try:
+        extraction = extract_profile(request.text)
+        profile = extracted_to_profile(extraction.profile)
+        if profile.sector is None:
+            return TextMatchResponse(extraction=extraction, profile=extraction.profile, match=None)
+        return TextMatchResponse(extraction=extraction, profile=extraction.profile, match=_match_payload(MatchProfile.model_validate(profile.model_dump())))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Natural-language profile matching is unavailable.") from exc
 
 @app.post("/api/chat")
 def chat(req: ChatRequest):

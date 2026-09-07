@@ -39,6 +39,12 @@ pytest
 
 The tests cover eligibility boundaries and requirements, structured score components and ranking, catalogue-backed API responses, and FastAPI validation errors. The backend remains the authority for deterministic eligibility; no LLM or AI service is used by this phase.
 
+## Natural-language profile extraction
+
+Phase 4 adds `POST /api/profile/extract` and `POST /api/match/text`. Natural-language text is converted into a nullable structured profile, normalized deterministically, and then passed to the existing rule-based matching engine. Currency expressions such as `3.5 lakh` and `5 crore` are normalized locally. Missing or ambiguous facts remain unknown.
+
+The application uses a small provider abstraction with a safe local extractor by default, so no API key is required. `LLM_PROVIDER`, `LLM_API_KEY`, and `LLM_MODEL` may be configured through environment variables for a future provider implementation; secrets must never be placed in frontend code. Extraction is not eligibility: the backend validates the profile and deterministic rules decide eligibility, ranking, and explanations. User text is treated as data, so instructions inside it cannot override this boundary.
+
 ## Structured scheme data
 
 The catalogue is versioned and validated before it is used. Each scheme preserves the existing prototype information and has structured eligibility and unverified demo-source metadata. Documents, application steps, coverage, agencies, and application URLs remain unknown when the catalogue does not provide them; facts are not invented. Future authoritative government data must include its source and verification metadata. Phase 2 still does not use an LLM, RAG, OCR, embeddings, or a vector database.

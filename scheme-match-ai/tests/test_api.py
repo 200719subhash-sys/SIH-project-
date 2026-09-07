@@ -82,3 +82,40 @@ def test_missing_required_profile_field_returns_validation_error():
     del payload["sector"]
     response = client.post("/api/match", json=payload)
     assert response.status_code == 422
+
+
+def test_profile_extract_endpoint():
+    response = client.post("/api/profile/extract", json={"text": "I am a 27 year old SC woman from Tamil Nadu and need 5 lakh for tailoring."})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["profile"]["age"] == 27
+    assert body["profile"]["social_category"] == "SC"
+    assert body["profile"]["loan_required"] == 500000
+    assert body["profile"]["sector"] == "Services"
+
+
+def test_profile_extract_rejects_empty_and_large_input():
+    assert client.post("/api/profile/extract", json={"text": ""}).status_code == 400
+    assert client.post("/api/profile/extract", json={"text": "x" * 5001}).status_code == 400
+
+
+def test_text_match_reuses_deterministic_matching():
+    response = client.post(
+        "/api/match/text",
+        json={"text": "I am a 27 year old SC woman from Tamil Nadu. My family income is 3.5 lakh. I want to start a tailoring business and need 5 lakh."},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["profile"]["annual_income"] == 350000
+    assert body["match"]["results"]
+    assert body["match"]["results"][0]["status"] in {"eligible", "needs_information"}
+
+
+def test_text_match_without_sector_does_not_invent_one():
+    response = client.post("/api/match/text", json={"text": "I am an entrepreneur in Karnataka."})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["profile"]["sector"] is None
+    assert body["match"] is None
+    assert body["profile"]["age"] is None
+    assert body["profile"]["annual_income"] is None

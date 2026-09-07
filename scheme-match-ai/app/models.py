@@ -5,29 +5,72 @@ from pydantic import BaseModel, Field, HttpUrl, model_validator
 
 
 class Profile(BaseModel):
-    name: str = ""
+    name: str | None = ""
     state: str | None = None
-    district: str = ""
+    district: str | None = ""
     age: int | None = Field(default=None, ge=18, le=100)
-    gender: str = "Any"
+    gender: str | None = "Any"
     social_category: str | None = None
     annual_income: float | None = Field(default=None, ge=0)
-    entrepreneur: bool = True
-    business_stage: str = "Idea"
-    sector: str
-    business_type: str = "Proprietorship"
-    disability: bool = False
-    student: bool = False
-    veteran: bool = False
-    rural: bool = False
-    loan_required: float = Field(default=0, ge=0)
-    education_level: str = "Graduate"
+    entrepreneur: bool | None = True
+    business_stage: str | None = "Idea"
+    sector: str | None = None
+    business_type: str | None = "Proprietorship"
+    disability: bool | None = False
+    student: bool | None = False
+    veteran: bool | None = False
+    rural: bool | None = False
+    loan_required: float | None = Field(default=0, ge=0)
+    education_level: str | None = "Graduate"
     keywords: list[str] = Field(default_factory=list)
 
 
 class ChatRequest(BaseModel):
     message: str
     profile: Profile | None = None
+
+
+class MatchProfile(Profile):
+    sector: str
+
+
+class ProfileExtractionRequest(BaseModel):
+    text: str
+
+
+class ExtractedProfile(BaseModel):
+    name: str | None = None
+    state: str | None = None
+    district: str | None = None
+    age: int | None = Field(default=None, ge=18, le=100)
+    gender: str | None = None
+    social_category: str | None = None
+    annual_income: float | None = Field(default=None, ge=0)
+    entrepreneur: bool | None = None
+    business_stage: str | None = None
+    sector: str | None = None
+    business_type: str | None = None
+    disability: bool | None = None
+    student: bool | None = None
+    veteran: bool | None = None
+    rural: bool | None = None
+    loan_required: float | None = Field(default=None, ge=0)
+    education_level: str | None = None
+    keywords: list[str] = Field(default_factory=list)
+
+
+class ProfileExtractionResult(BaseModel):
+    profile: ExtractedProfile
+    extracted_fields: list[str] = Field(default_factory=list)
+    missing_fields: list[str] = Field(default_factory=list)
+    uncertain_fields: list[str] = Field(default_factory=list)
+    needs_clarification: bool = False
+
+
+class TextMatchResponse(BaseModel):
+    extraction: ProfileExtractionResult
+    profile: ExtractedProfile | None = None
+    match: dict[str, Any] | None = None
 
 
 class IncomeRule(BaseModel):
