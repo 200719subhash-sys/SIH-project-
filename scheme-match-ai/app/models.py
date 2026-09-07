@@ -61,6 +61,7 @@ class ChatResponse(BaseModel):
     missing_information: list[str] = Field(default_factory=list)
     selected_scheme_id: str | None = None
     conversation_context: dict[str, Any] = Field(default_factory=dict)
+    evidence: list["Evidence"] = Field(default_factory=list)
 
 
 class MatchProfile(Profile):
@@ -126,6 +127,57 @@ class RetrievalRequest(BaseModel):
     top_k: int = Field(default=5, ge=1, le=50)
 
 
+VerificationStatus = Literal["unverified", "needs_review", "verified"]
+
+
+class SourceRecord(BaseModel):
+    source_id: str = Field(min_length=1)
+    source_name: str = Field(min_length=1)
+    source_url: HttpUrl | None = None
+    source_type: Literal["official_webpage", "official_pdf", "official_notification", "government_document", "synthetic_test_fixture", "other"]
+    scheme_id: str | None = None
+    title: str = Field(min_length=1)
+    verification_status: VerificationStatus
+    verified_at: date | None = None
+    effective_from: date | None = None
+    effective_until: date | None = None
+    data_version: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_source(self) -> "SourceRecord":
+        if self.verification_status == "verified" and self.verified_at is None:
+            raise ValueError("verified_at is required for verified sources")
+        if self.effective_from and self.effective_until and self.effective_from > self.effective_until:
+            raise ValueError("effective_from cannot be later than effective_until")
+        return self
+
+
+class Evidence(BaseModel):
+    source_id: str
+    scheme_id: str | None = None
+    title: str
+    source_name: str
+    source_url: HttpUrl | None = None
+    snippet: str
+    chunk_id: str
+    verification_status: VerificationStatus
+    data_version: str
+    relevance_score: float = Field(ge=0)
+
+
+class RagQueryRequest(BaseModel):
+    query: str = Field(min_length=1)
+    scheme_id: str | None = None
+    top_k: int = Field(default=5, ge=1, le=20)
+
+
+class RagQueryResponse(BaseModel):
+    query: str
+    results: list[Evidence]
+    retrieval_method: Literal["lexical"]
+    verified_only: bool = True
+
+
 class IncomeRule(BaseModel):
     min: float | None = Field(default=None, ge=0)
     max: float | None = Field(default=None, ge=0)
@@ -180,7 +232,6 @@ class Coverage(BaseModel):
 
 
 SourceType = Literal["official_government", "official_ministry", "official_portal", "other"]
-VerificationStatus = Literal["unverified", "needs_review", "verified"]
 
 
 class SourceMetadata(BaseModel):

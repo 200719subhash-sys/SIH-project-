@@ -57,6 +57,12 @@ Phase 6 adds a local retrieval layer with deterministic TF-IDF lexical ranking a
 
 `POST /api/retrieve` returns candidate schemes and retrieval scores only. `/api/match` evaluates the full validated catalogue through the deterministic eligibility engine and adds retrieval metadata without allowing retrieval scores to override eligibility. Current records remain subject to their catalogue verification status.
 
+## Phase 7: Grounded RAG and source evidence
+
+Phase 7 adds a source registry, deterministic document chunking, verified-only lexical evidence retrieval, citation metadata, `POST /api/rag/query`, and `GET /api/sources`. Only documents explicitly registered in the application corpus can produce evidence. No user-supplied URL is fetched, and retrieved text is treated as untrusted content rather than instructions.
+
+The current demo catalogue has no registered verified documents, so the default RAG corpus is empty and factual source questions report that verified information is unavailable. Synthetic documents are used only in tests and are labelled `synthetic_test_fixture`. RAG can support explanations, but it never decides eligibility; the deterministic eligibility engine remains authoritative. No real government source was verified during this phase.
+
 ## Structured scheme data
 
 The catalogue is versioned and validated before it is used. Each scheme preserves the existing prototype information and has structured eligibility and unverified demo-source metadata. Documents, application steps, coverage, agencies, and application URLs remain unknown when the catalogue does not provide them; facts are not invented. Future authoritative government data must include its source and verification metadata. Phase 2 still does not use an LLM, RAG, OCR, embeddings, or a vector database.

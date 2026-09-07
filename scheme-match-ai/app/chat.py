@@ -15,6 +15,7 @@ from .models import (
     Scheme,
 )
 from .profile_extraction import extract_profile, extracted_to_profile
+from .rag import DEFAULT_RAG_CORPUS
 from .retrieval import retrieve_schemes
 
 
@@ -27,6 +28,7 @@ TOOL_NAMES = {
     "get_documents",
     "get_application_information",
     "extract_profile",
+    "retrieve_evidence",
 }
 
 
@@ -122,6 +124,7 @@ def _tool_registry() -> dict[str, Callable[..., Any]]:
         "get_documents": lambda scheme_id: _get_scheme(load_catalogue_from_app().schemes, scheme_id),
         "get_application_information": lambda scheme_id: _get_scheme(load_catalogue_from_app().schemes, scheme_id),
         "extract_profile": extract_profile,
+        "retrieve_evidence": DEFAULT_RAG_CORPUS.retrieve_evidence,
     }
 
 
@@ -160,7 +163,8 @@ def _scheme_answer(intent: Intent, scheme: Scheme | None, match: dict[str, Any] 
         return "Application information in the current catalogue: " + "; ".join(details), "get_application_information", [scheme.id], False, []
     if intent == Intent.benefit_information:
         amount = f"₹{scheme.max_assistance:,.0f}" if scheme.max_assistance is not None else "Not available in current catalogue"
-        return f"Benefit: {scheme.benefit} Maximum assistance recorded in the catalogue: {amount}.", "get_benefit_information", [scheme.id], False, []
+        qualifier = " This comes from the current unverified demo catalogue." if scheme.source.verification_status != "verified" else ""
+        return f"Benefit: {scheme.benefit} Maximum assistance recorded in the catalogue: {amount}.{qualifier}", "get_benefit_information", [scheme.id], False, []
     item = next((x for x in (match or {}).get("results", []) + (match or {}).get("not_eligible", []) + (match or {}).get("needs_information", []) if x["scheme"]["id"] == scheme.id), None)
     if not item:
         return "I need a complete profile before I can explain this scheme.", "explain_eligibility", [scheme.id], True, ["age", "social_category", "annual_income", "sector"]
@@ -189,6 +193,7 @@ def orchestrate_chat(request: ChatRequest) -> ChatResponse:
     needs_clarification = False
     selected_id = _scheme_id_from_context(request, schemes)
     match: dict[str, Any] | None = None
+    evidence = []
 
     if intent_result.intent == Intent.profile_update:
         answer = "I updated your profile with the facts you explicitly provided."
@@ -226,6 +231,11 @@ def orchestrate_chat(request: ChatRequest) -> ChatResponse:
         answer = "Which scheme would you like me to check?"
         needs_clarification = True
 
+    if intent_result.intent in {Intent.benefit_information, Intent.documents, Intent.application_process, Intent.general_scheme_question, Intent.eligibility_explanation}:
+        evidence = DEFAULT_RAG_CORPUS.retrieve_evidence(request.message, scheme_id=selected_id, top_k=3)
+        if evidence:
+            answer += " Supporting verified source: " + "; ".join(item.title for item in evidence) + "."
+
     if scheme_ids:
         selected_id = selected_id or scheme_ids[0]
     context["selected_scheme_id"] = selected_id
@@ -240,4 +250,5 @@ def orchestrate_chat(request: ChatRequest) -> ChatResponse:
         missing_information=missing,
         selected_scheme_id=selected_id,
         conversation_context=context,
+        evidence=evidence,
     )

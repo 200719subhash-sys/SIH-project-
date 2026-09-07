@@ -6,9 +6,11 @@ from pathlib import Path
 from .catalogue import SchemeDataError, load_catalogue
 from .chat import orchestrate_chat
 from .matching import match_schemes, score_scheme
-from .models import ChatRequest, ChatResponse, MatchProfile, Profile, ProfileExtractionRequest, RetrievalRequest, RetrievalResponse, TextMatchResponse, Scheme
+from .models import ChatRequest, ChatResponse, MatchProfile, Profile, ProfileExtractionRequest, RagQueryRequest, RagQueryResponse, RetrievalRequest, RetrievalResponse, SourceRecord, TextMatchResponse, Scheme
 from .profile_extraction import extracted_to_profile, extract_profile
+from .rag import DEFAULT_RAG_CORPUS
 from .retrieval import retrieve_schemes
+from .sources import DEFAULT_SOURCE_REGISTRY
 
 BASE = Path(__file__).resolve().parent.parent
 DATA = BASE / "data" / "schemes.json"
@@ -74,6 +76,20 @@ def retrieve(request: RetrievalRequest):
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except SchemeDataError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.get("/api/sources", response_model=list[SourceRecord])
+def sources():
+    return DEFAULT_SOURCE_REGISTRY.all()
+
+
+@app.post("/api/rag/query", response_model=RagQueryResponse)
+def rag_query(request: RagQueryRequest):
+    try:
+        results = DEFAULT_RAG_CORPUS.retrieve_evidence(request.query, request.scheme_id, request.top_k, verified_only=True)
+        return RagQueryResponse(query=request.query, results=results, retrieval_method="lexical", verified_only=True)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.post("/api/match")

@@ -159,3 +159,17 @@ def test_retrieve_endpoint_returns_candidates_not_eligibility():
 
 def test_retrieve_endpoint_rejects_invalid_top_k():
     assert client.post("/api/retrieve", json={"query": "finance", "top_k": 0}).status_code == 422
+
+
+def test_sources_endpoint_is_safe_and_rag_has_no_unverified_evidence():
+    sources = client.get("/api/sources")
+    assert sources.status_code == 200
+    assert sources.json() == []
+    response = client.post("/api/rag/query", json={"query": "What documents are required?"})
+    assert response.status_code == 200
+    assert response.json()["results"] == []
+    assert response.json()["verified_only"] is True
+
+
+def test_rag_endpoint_rejects_empty_query():
+    assert client.post("/api/rag/query", json={"query": ""}).status_code == 422

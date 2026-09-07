@@ -108,6 +108,7 @@ def test_catalogue_gaps_are_not_fabricated():
     )
     assert response.tool_used == "get_documents"
     assert "does not contain verified document information" in response.reply
+    assert response.evidence == []
 
 
 def test_benefit_and_application_routes_report_catalogue_gaps():
