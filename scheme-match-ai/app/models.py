@@ -1,4 +1,5 @@
 from datetime import date
+from enum import Enum
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, HttpUrl, model_validator
@@ -28,6 +29,38 @@ class Profile(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     profile: Profile | None = None
+    selected_scheme_id: str | None = None
+    conversation_context: dict[str, Any] = Field(default_factory=dict)
+
+
+class Intent(str, Enum):
+    scheme_recommendation = "scheme_recommendation"
+    eligibility_explanation = "eligibility_explanation"
+    benefit_information = "benefit_information"
+    documents = "documents"
+    application_process = "application_process"
+    scheme_comparison = "scheme_comparison"
+    profile_update = "profile_update"
+    general_scheme_question = "general_scheme_question"
+    clarification = "clarification"
+    unknown = "unknown"
+
+
+class IntentResult(BaseModel):
+    intent: Intent
+    confidence: Literal["high", "medium", "low"]
+
+
+class ChatResponse(BaseModel):
+    reply: str
+    intent: Intent
+    tool_used: str | None = None
+    scheme_ids: list[str] = Field(default_factory=list)
+    profile_updates: dict[str, Any] = Field(default_factory=dict)
+    needs_clarification: bool = False
+    missing_information: list[str] = Field(default_factory=list)
+    selected_scheme_id: str | None = None
+    conversation_context: dict[str, Any] = Field(default_factory=dict)
 
 
 class MatchProfile(Profile):

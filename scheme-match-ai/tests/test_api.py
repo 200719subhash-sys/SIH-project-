@@ -119,3 +119,29 @@ def test_text_match_without_sector_does_not_invent_one():
     assert body["match"] is None
     assert body["profile"]["age"] is None
     assert body["profile"]["annual_income"] is None
+
+
+def test_chat_preserves_reply_compatibility_and_adds_metadata():
+    response = client.post("/api/chat", json={"message": "Which schemes can I get?", "profile": valid_profile()})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["reply"]
+    assert body["intent"] == "scheme_recommendation"
+    assert body["tool_used"] == "match_schemes"
+    assert body["scheme_ids"]
+
+
+def test_chat_routes_scheme_specific_catalogue_question():
+    response = client.post(
+        "/api/chat",
+        json={
+            "message": "What documents do I need?",
+            "profile": valid_profile(),
+            "selected_scheme_id": "sc-entrepreneur-finance",
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["intent"] == "documents"
+    assert body["tool_used"] == "get_documents"
+    assert "does not contain verified document information" in body["reply"]

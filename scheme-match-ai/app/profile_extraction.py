@@ -88,9 +88,9 @@ def _first_state(text: str) -> str | None:
 def extract_local_facts(text: str) -> ExtractedProfile:
     """Extract only explicit facts with conservative deterministic patterns."""
     facts: dict[str, Any] = {}
-    age = re.search(r"\b(\d{1,3})\s*(?:years?\s*old|year-old|yo)\b", text, re.IGNORECASE)
+    age = re.search(r"\b(?:i(?:'m| am)|age(?: is)?|aged)\s*(?:actually\s*)?(\d{1,3})\b|\b(\d{1,3})\s*(?:years?\s*old|year-old|yo)\b", text, re.IGNORECASE)
     if age:
-        facts["age"] = int(age.group(1))
+        facts["age"] = int(age.group(1) or age.group(2))
 
     state = _first_state(text)
     if state:
@@ -152,6 +152,23 @@ def _missing_fields(profile: ExtractedProfile) -> list[str]:
     return [field for field in IMPORTANT_FIELDS if values.get(field) is None]
 
 
+def _conflicting_fields(text: str) -> list[str]:
+    ages = re.findall(r"\b(?:i(?:'m| am)|age(?: is)?|aged)\s*(?:actually\s*)?(\d{1,3})\b|\b(\d{1,3})\s*(?:years?\s*old|year-old|yo)\b", text, re.IGNORECASE)
+    age_values = {int(first or second) for first, second in ages}
+    amount_matches = re.finditer(r"(?:₹\s*)?(\d+(?:\.\d+)?)\s*(lakh|lac|lakhs|crore|crores)\b", text, re.IGNORECASE)
+    income_amounts = set()
+    for match in amount_matches:
+        prefix = text[max(0, match.start() - 70):match.start()].lower()
+        income_position = max(prefix.rfind(keyword) for keyword in ("income", "earning", "earn", "family"))
+        loan_position = max(prefix.rfind(keyword) for keyword in ("need", "loan", "borrow", "capital", "require"))
+        if income_position >= loan_position and income_position >= 0:
+            income_amounts.add(normalize_currency(match.group(0)))
+    conflicts = ["age"] if len(age_values) > 1 else []
+    if len(income_amounts) > 1:
+        conflicts.append("annual_income")
+    return conflicts
+
+
 def extract_profile(text: str, provider: ProfileExtractionProvider | None = None) -> ProfileExtractionResult:
     if not isinstance(text, str) or not text.strip():
         raise ValueError("text must not be empty")
@@ -166,6 +183,11 @@ def extract_profile(text: str, provider: ProfileExtractionProvider | None = None
         field for field, raw_value in raw_values.items()
         if raw_value not in (None, "", []) and normalized.model_dump().get(field) is None
     ]
+    for field in _conflicting_fields(text):
+        if field not in uncertain:
+            uncertain.append(field)
+        normalized = normalized.model_copy(update={field: None})
+    missing = _missing_fields(normalized)
     return ProfileExtractionResult(
         profile=normalized,
         extracted_fields=[field for field, value in normalized.model_dump().items() if value not in (None, "", [])],

@@ -4,8 +4,9 @@ from fastapi import FastAPI, HTTPException
 from pathlib import Path
 
 from .catalogue import SchemeDataError, load_catalogue
+from .chat import orchestrate_chat
 from .matching import match_schemes, score_scheme
-from .models import ChatRequest, MatchProfile, Profile, ProfileExtractionRequest, TextMatchResponse, Scheme
+from .models import ChatRequest, ChatResponse, MatchProfile, Profile, ProfileExtractionRequest, TextMatchResponse, Scheme
 from .profile_extraction import extracted_to_profile, extract_profile
 
 BASE = Path(__file__).resolve().parent.parent
@@ -82,18 +83,11 @@ def match_text(request: ProfileExtractionRequest):
     except Exception as exc:
         raise HTTPException(status_code=503, detail="Natural-language profile matching is unavailable.") from exc
 
-@app.post("/api/chat")
+@app.post("/api/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    msg=req.message.lower()
-    p=req.profile
-    if any(x in msg for x in ["eligible", "eligibility", "qualify"]):
-        if not p: return {"reply":"Fill your applicant profile first and I can explain eligibility scheme-by-scheme."}
-        m=match(p)
-        if not m["results"]: return {"reply":"I could not find a scheme matching all hard eligibility filters. Try reviewing income, category, state, or business stage."}
-        top=m["results"][0]
-        return {"reply":f"Your strongest current match is {top['scheme']['name']} at {top['match_score']}%. " + "; ".join(top['reasons']) + "."}
-    if "income" in msg:
-        return {"reply":"Income is used as a hard eligibility filter where a scheme publishes a ceiling, then as an explanation factor in the match score."}
-    if "how" in msg and "work" in msg:
-        return {"reply":"SahayakAI first applies hard rules such as category, income, state and age. It then scores sector, business stage, assistance fit and semantic similarity, and shows the reasons instead of a black-box number."}
-    return {"reply":"I can explain eligibility, income limits, matching logic, required documents, or help you compare your top schemes."}
+    try:
+        return orchestrate_chat(req)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="The assistant is temporarily unavailable.") from exc
