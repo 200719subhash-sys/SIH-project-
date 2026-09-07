@@ -1,0 +1,44 @@
+# SahayakAI — AI-Driven Scheme Matching
+
+Hackathon-ready MVP for SIH26092: **AI-Driven Scheme Matching for Marginalized Entrepreneurs**.
+
+## What is included
+- FastAPI backend with REST endpoints.
+- Explainable eligibility engine (category, income, state, age, entrepreneur/student status, business stage, sector).
+- Lightweight semantic matching using TF-IDF + cosine similarity — no paid API or model key required.
+- Scheme catalogue stored as JSON so the team can replace demo records with verified official scheme data.
+- Responsive dark dashboard with profile form, ranked matches, reason chips, official-source links and an eligibility assistant.
+
+## Run locally
+```bash
+python -m venv .venv
+# Windows: .venv\\Scripts\\activate
+# macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+Open `http://127.0.0.1:8000`.
+
+## API
+- `GET /api/health`
+- `GET /api/schemes`
+- `POST /api/match`
+- `POST /api/chat`
+
+## Architecture
+Browser → FastAPI → Eligibility Engine → Explainable Scoring → Scheme Catalogue.
+
+The scoring pipeline intentionally separates **hard eligibility** from **ranking**. A scheme that fails a published hard condition is excluded rather than given a misleading high score. Eligible schemes receive points for explicit profile matches plus a small semantic similarity component.
+
+## Important for SIH submission
+The included scheme catalogue is **prototype/demo data**, not a claim that these are the complete or current government rules. Before final submission/demo, replace `data/schemes.json` with a reviewed dataset sourced from current official ministry/agency portals, add document requirements and application links, and show a data-refresh timestamp.
+
+## Suggested production upgrades
+1. PostgreSQL + versioned scheme records.
+2. OCR/document extraction for certificates and income documents.
+3. multilingual NLP (Hindi + regional languages).
+4. RAG over verified government circulars/FAQs with citations.
+5. consent, encryption, audit logs and role-based admin access.
+6. district-level implementing-agency routing.
+7. eligibility confidence + “missing information” state rather than binary assumptions.
+ī

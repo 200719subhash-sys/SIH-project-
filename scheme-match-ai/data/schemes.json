@@ -1,0 +1,68 @@
+[
+  {
+    "id":"sc-entrepreneur-finance",
+    "name":"SC Entrepreneur Concessional Finance",
+    "ministry":"Ministry of Social Justice and Empowerment",
+    "description":"Concessional financial assistance for eligible Scheduled Caste entrepreneurs and aspiring entrepreneurs to start or expand income-generating businesses.",
+    "benefit":"Concessional loan support; final amount and terms depend on the implementing channel and current guidelines.",
+    "max_assistance":5000000,
+    "official_url":"https://socialjustice.gov.in/",
+    "eligibility":{"categories":["SC"],"income":{"max":500000},"entrepreneur":true,"business_stages":["Idea","Early","Existing"],"sectors":["Manufacturing","Services","Retail","Agriculture","Technology"]},
+    "search_text":"Scheduled Caste SC entrepreneur business startup expansion concessional financial assistance loan income family annual five lakh manufacturing services retail agriculture technology"
+  },
+  {
+    "id":"sc-education-loan",
+    "name":"SC Education Loan Support",
+    "ministry":"Ministry of Social Justice and Empowerment",
+    "description":"Financial support for eligible SC students pursuing higher education and professional courses, subject to the applicable programme rules.",
+    "benefit":"Concessional educational loan support.",
+    "max_assistance":2000000,
+    "official_url":"https://socialjustice.gov.in/",
+    "eligibility":{"categories":["SC"],"income":{"max":500000},"student":true,"sectors":[]},
+    "search_text":"Scheduled Caste SC student higher education professional course educational loan family income concession"
+  },
+  {
+    "id":"mudra-shishu-kishore",
+    "name":"PM MUDRA — Micro Enterprise Credit",
+    "ministry":"Ministry of Finance",
+    "description":"Collateral-free institutional credit for micro enterprises, subject to lender assessment and current MUDRA rules.",
+    "benefit":"Business credit under Shishu, Kishor and Tarun categories depending on need and eligibility.",
+    "max_assistance":1000000,
+    "official_url":"https://www.mudra.org.in/",
+    "eligibility":{"categories":["SC","ST","OBC","General"],"income":{"max":null},"entrepreneur":true,"business_stages":["Idea","Early","Existing"],"sectors":["Manufacturing","Services","Retail","Agriculture","Technology"]},
+    "search_text":"micro enterprise credit small business startup working capital MUDRA manufacturing services trading retail agriculture technology"
+  },
+  {
+    "id":"stand-up-india",
+    "name":"Stand-Up India",
+    "ministry":"Ministry of Finance",
+    "description":"Bank loans for eligible SC/ST and women entrepreneurs for greenfield enterprises, subject to scheme and bank conditions.",
+    "benefit":"Composite loan generally intended for setting up a new enterprise; verify current limits and conditions with the lender.",
+    "max_assistance":10000000,
+    "official_url":"https://www.standupmitra.in/",
+    "eligibility":{"categories":["SC","ST"],"income":{"max":null},"entrepreneur":true,"business_stages":["Idea","Early"],"sectors":["Manufacturing","Services","Retail"]},
+    "search_text":"SC ST entrepreneur greenfield new enterprise bank loan manufacturing services trading women entrepreneur startup"
+  },
+  {
+    "id":"pm-egp",
+    "name":"Prime Minister's Employment Generation Programme",
+    "ministry":"Ministry of Micro Small and Medium Enterprises",
+    "description":"Credit-linked subsidy programme supporting new micro-enterprises, with special category benefits subject to current guidelines.",
+    "benefit":"Margin money subsidy linked to bank finance, with higher support for eligible special categories under applicable rules.",
+    "max_assistance":5000000,
+    "official_url":"https://www.kviconline.gov.in/pmegpeportal/",
+    "eligibility":{"categories":["SC","ST","OBC","General"],"income":{"max":null},"entrepreneur":true,"business_stages":["Idea"],"sectors":["Manufacturing","Services"]},
+    "search_text":"new micro enterprise employment generation subsidy manufacturing service special category SC ST OBC rural urban entrepreneur"
+  },
+  {
+    "id":"nsfdc-skill",
+    "name":"NSFDC Skill & Entrepreneurship Support",
+    "ministry":"Ministry of Social Justice and Empowerment",
+    "description":"Skill development and entrepreneurship-oriented support for eligible members of the Scheduled Caste community through implementing channels.",
+    "benefit":"Training, skill and entrepreneurship support depending on the active programme.",
+    "max_assistance":300000,
+    "official_url":"https://nsfdc.nic.in/",
+    "eligibility":{"categories":["SC"],"income":{"max":500000},"entrepreneur":true,"business_stages":["Idea","Early"],"sectors":["Manufacturing","Services","Retail","Agriculture","Technology"]},
+    "search_text":"SC scheduled caste skill development entrepreneurship training self employment income five lakh business startup"
+  }
+]
