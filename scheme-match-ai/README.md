@@ -28,7 +28,16 @@ Open `http://127.0.0.1:8000`.
 ## Architecture
 Browser → FastAPI → Eligibility Engine → Explainable Scoring → Scheme Catalogue.
 
-The scoring pipeline intentionally separates **hard eligibility** from **ranking**. A scheme that fails a published hard condition is excluded rather than given a misleading high score. Eligible schemes receive points for explicit profile matches plus a small semantic similarity component.
+The scoring pipeline intentionally separates deterministic **eligibility** from **ranking**. Eligibility returns `eligible`, `not_eligible`, or `needs_information`, with per-rule results. A scheme that fails a published hard condition is excluded rather than given a misleading match. A scheme with an unknown required profile value is reported separately as needing information. Eligible schemes receive a **match score** from explicit profile matches plus a small semantic similarity component; this score is not a probability or confidence value.
+
+## Tests
+
+Run the test suite from the project directory:
+```bash
+pytest
+```
+
+The tests cover eligibility boundaries and requirements, structured score components and ranking, catalogue-backed API responses, and FastAPI validation errors. The backend remains the authority for deterministic eligibility; no LLM or AI service is used by this phase.
 
 ## Important for SIH submission
 The included scheme catalogue is **prototype/demo data**, not a claim that these are the complete or current government rules. Before final submission/demo, replace `data/schemes.json` with a reviewed dataset sourced from current official ministry/agency portals, add document requirements and application links, and show a data-refresh timestamp.
