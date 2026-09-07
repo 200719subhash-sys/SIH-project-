@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, HttpUrl, model_validator
@@ -41,22 +42,67 @@ class IncomeRule(BaseModel):
 
 
 class SchemeEligibility(BaseModel):
-    categories: list[str] = Field(default_factory=list)
+    categories: list[str] | None = None
     income: IncomeRule | None = None
-    states: list[str] = Field(default_factory=list)
+    states: list[str] | None = None
+    districts: list[str] | None = None
     min_age: int | None = Field(default=None, ge=0)
     max_age: int | None = Field(default=None, ge=0)
+    gender: list[str] | None = None
     entrepreneur: bool | None = None
     student: bool | None = None
     disability: bool | None = None
+    veteran: bool | None = None
     rural: bool | None = None
-    business_stages: list[str] = Field(default_factory=list)
-    sectors: list[str] = Field(default_factory=list)
+    business_stages: list[str] | None = None
+    sectors: list[str] | None = None
+    business_types: list[str] | None = None
+    education_levels: list[str] | None = None
 
     @model_validator(mode="after")
     def validate_age_range(self) -> "SchemeEligibility":
         if self.min_age is not None and self.max_age is not None and self.min_age > self.max_age:
             raise ValueError("min_age cannot be greater than max_age")
+        return self
+
+
+class DocumentRequirement(BaseModel):
+    name: str = Field(min_length=1)
+    required: bool | None = None
+    description: str | None = None
+
+
+class ApplicationStep(BaseModel):
+    name: str = Field(min_length=1)
+    description: str | None = None
+
+
+class Coverage(BaseModel):
+    nationwide: bool | None = None
+    states: list[str] | None = None
+    districts: list[str] | None = None
+
+
+SourceType = Literal["official_government", "official_ministry", "official_portal", "other"]
+VerificationStatus = Literal["unverified", "needs_review", "verified"]
+
+
+class SourceMetadata(BaseModel):
+    source_name: str = Field(min_length=1)
+    source_url: HttpUrl | None = None
+    source_type: SourceType
+    verified_at: date | None = None
+    effective_from: date | None = None
+    effective_until: date | None = None
+    data_version: str = Field(min_length=1)
+    verification_status: VerificationStatus = "unverified"
+
+    @model_validator(mode="after")
+    def validate_effective_range(self) -> "SourceMetadata":
+        if self.effective_from is not None and self.effective_until is not None and self.effective_from > self.effective_until:
+            raise ValueError("effective_from cannot be later than effective_until")
+        if self.verification_status == "verified" and self.verified_at is None:
+            raise ValueError("verified_at is required when verification_status is verified")
         return self
 
 
@@ -70,6 +116,25 @@ class Scheme(BaseModel):
     official_url: HttpUrl
     eligibility: SchemeEligibility
     search_text: str
+    documents: list[DocumentRequirement] | None = None
+    application_steps: list[ApplicationStep] | None = None
+    application_url: HttpUrl | None = None
+    implementing_agency: str | None = None
+    coverage: Coverage | None = None
+    source: SourceMetadata
+
+
+class SchemeCatalogue(BaseModel):
+    scheme_data_version: str = Field(min_length=1)
+    schemes: list[Scheme]
+
+    @model_validator(mode="after")
+    def validate_unique_ids(self) -> "SchemeCatalogue":
+        ids = [scheme.id for scheme in self.schemes]
+        duplicates = sorted({scheme_id for scheme_id in ids if ids.count(scheme_id) > 1})
+        if duplicates:
+            raise ValueError(f"duplicate scheme IDs: {', '.join(duplicates)}")
+        return self
 
 
 RuleStatus = Literal["passed", "failed", "unknown"]

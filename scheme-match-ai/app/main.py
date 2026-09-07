@@ -1,10 +1,9 @@
-import json
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, HTTPException
 from pathlib import Path
 
-from .eligibility import hard_eligibility
+from .catalogue import SchemeDataError, load_catalogue
 from .matching import match_schemes
 from .models import ChatRequest, Profile, Scheme
 
@@ -13,27 +12,8 @@ DATA = BASE / "data" / "schemes.json"
 app = FastAPI(title="SahayakAI — AI Scheme Matching", version="1.0.0")
 app.mount("/static", StaticFiles(directory=BASE / "app" / "static"), name="static")
 
-class SchemeDataError(ValueError):
-    pass
-
-
 def load_schemes() -> list[Scheme]:
-    try:
-        with open(DATA, "r", encoding="utf-8") as f:
-            raw_schemes = json.load(f)
-    except (OSError, json.JSONDecodeError) as exc:
-        raise SchemeDataError(f"could not load scheme catalogue: {exc}") from exc
-    if not isinstance(raw_schemes, list):
-        raise SchemeDataError("scheme catalogue must contain a JSON array")
-    try:
-        schemes = [Scheme.model_validate(item) for item in raw_schemes]
-    except Exception as exc:
-        raise SchemeDataError(f"invalid scheme catalogue: {exc}") from exc
-    ids = [scheme.id for scheme in schemes]
-    duplicates = sorted({scheme_id for scheme_id in ids if ids.count(scheme_id) > 1})
-    if duplicates:
-        raise SchemeDataError(f"duplicate scheme IDs: {', '.join(duplicates)}")
-    return schemes
+    return load_catalogue(DATA).schemes
 
 @app.get("/")
 def index():
@@ -46,7 +26,8 @@ def health():
 @app.get("/api/schemes")
 def schemes():
     try:
-        return [scheme.model_dump(mode="json") for scheme in load_schemes()]
+        catalogue = load_catalogue(DATA)
+        return [scheme.model_dump(mode="json") for scheme in catalogue.schemes]
     except SchemeDataError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 

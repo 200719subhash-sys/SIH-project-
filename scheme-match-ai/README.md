@@ -39,6 +39,10 @@ pytest
 
 The tests cover eligibility boundaries and requirements, structured score components and ranking, catalogue-backed API responses, and FastAPI validation errors. The backend remains the authority for deterministic eligibility; no LLM or AI service is used by this phase.
 
+## Structured scheme data
+
+The catalogue is versioned and validated before it is used. Each scheme preserves the existing prototype information and has structured eligibility and unverified demo-source metadata. Documents, application steps, coverage, agencies, and application URLs remain unknown when the catalogue does not provide them; facts are not invented. Future authoritative government data must include its source and verification metadata. Phase 2 still does not use an LLM, RAG, OCR, embeddings, or a vector database.
+
 ## Important for SIH submission
 The included scheme catalogue is **prototype/demo data**, not a claim that these are the complete or current government rules. Before final submission/demo, replace `data/schemes.json` with a reviewed dataset sourced from current official ministry/agency portals, add document requirements and application links, and show a data-refresh timestamp.
 

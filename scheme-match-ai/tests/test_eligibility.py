@@ -25,6 +25,12 @@ def scheme(**eligibility):
         official_url="https://example.com/scheme",
         eligibility=eligibility,
         search_text="test scheme service entrepreneur",
+        source={
+            "source_name": "Test fixture",
+            "source_type": "other",
+            "data_version": "test-1",
+            "verification_status": "unverified",
+        },
     )
 
 

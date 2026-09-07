@@ -39,15 +39,15 @@ def score_scheme(scheme: Scheme | dict[str, Any], profile: Profile) -> MatchResu
 
     if eligibility.status != "not_eligible":
         criteria = normalized.eligibility
-        if profile.social_category and profile.social_category in criteria.categories:
+        if profile.social_category and profile.social_category in (criteria.categories or []):
             components.category = 30
         if criteria.income is not None and criteria.income.max is not None:
             components.income = 20
-        if profile.state and profile.state in criteria.states:
+        if profile.state and profile.state in (criteria.states or []):
             components.state = 10
-        if profile.sector and profile.sector.lower() in [item.lower() for item in criteria.sectors]:
+        if profile.sector and profile.sector.lower() in [item.lower() for item in (criteria.sectors or [])]:
             components.sector = 15
-        if profile.business_stage in criteria.business_stages:
+        if profile.business_stage in (criteria.business_stages or []):
             components.business_stage = 10
         if profile.loan_required and normalized.max_assistance >= profile.loan_required:
             components.loan_amount = 5

@@ -1,4 +1,6 @@
-[
+{
+  "scheme_data_version":"phase-2-demo-1",
+  "schemes":[
   {
     "id":"sc-entrepreneur-finance",
     "name":"SC Entrepreneur Concessional Finance",
@@ -8,7 +10,8 @@
     "max_assistance":5000000,
     "official_url":"https://socialjustice.gov.in/",
     "eligibility":{"categories":["SC"],"income":{"max":500000},"entrepreneur":true,"business_stages":["Idea","Early","Existing"],"sectors":["Manufacturing","Services","Retail","Agriculture","Technology"]},
-    "search_text":"Scheduled Caste SC entrepreneur business startup expansion concessional financial assistance loan income family annual five lakh manufacturing services retail agriculture technology"
+    "search_text":"Scheduled Caste SC entrepreneur business startup expansion concessional financial assistance loan income family annual five lakh manufacturing services retail agriculture technology",
+    "source":{"source_name":"Prototype/demo catalogue","source_url":null,"source_type":"other","verified_at":null,"effective_from":null,"effective_until":null,"data_version":"phase-2-demo-1","verification_status":"unverified"}
   },
   {
     "id":"sc-education-loan",
@@ -19,7 +22,8 @@
     "max_assistance":2000000,
     "official_url":"https://socialjustice.gov.in/",
     "eligibility":{"categories":["SC"],"income":{"max":500000},"student":true,"sectors":[]},
-    "search_text":"Scheduled Caste SC student higher education professional course educational loan family income concession"
+    "search_text":"Scheduled Caste SC student higher education professional course educational loan family income concession",
+    "source":{"source_name":"Prototype/demo catalogue","source_url":null,"source_type":"other","verified_at":null,"effective_from":null,"effective_until":null,"data_version":"phase-2-demo-1","verification_status":"unverified"}
   },
   {
     "id":"mudra-shishu-kishore",
@@ -30,7 +34,8 @@
     "max_assistance":1000000,
     "official_url":"https://www.mudra.org.in/",
     "eligibility":{"categories":["SC","ST","OBC","General"],"income":{"max":null},"entrepreneur":true,"business_stages":["Idea","Early","Existing"],"sectors":["Manufacturing","Services","Retail","Agriculture","Technology"]},
-    "search_text":"micro enterprise credit small business startup working capital MUDRA manufacturing services trading retail agriculture technology"
+    "search_text":"micro enterprise credit small business startup working capital MUDRA manufacturing services trading retail agriculture technology",
+    "source":{"source_name":"Prototype/demo catalogue","source_url":null,"source_type":"other","verified_at":null,"effective_from":null,"effective_until":null,"data_version":"phase-2-demo-1","verification_status":"unverified"}
   },
   {
     "id":"stand-up-india",
@@ -41,7 +46,8 @@
     "max_assistance":10000000,
     "official_url":"https://www.standupmitra.in/",
     "eligibility":{"categories":["SC","ST"],"income":{"max":null},"entrepreneur":true,"business_stages":["Idea","Early"],"sectors":["Manufacturing","Services","Retail"]},
-    "search_text":"SC ST entrepreneur greenfield new enterprise bank loan manufacturing services trading women entrepreneur startup"
+    "search_text":"SC ST entrepreneur greenfield new enterprise bank loan manufacturing services trading women entrepreneur startup",
+    "source":{"source_name":"Prototype/demo catalogue","source_url":null,"source_type":"other","verified_at":null,"effective_from":null,"effective_until":null,"data_version":"phase-2-demo-1","verification_status":"unverified"}
   },
   {
     "id":"pm-egp",
@@ -52,7 +58,8 @@
     "max_assistance":5000000,
     "official_url":"https://www.kviconline.gov.in/pmegpeportal/",
     "eligibility":{"categories":["SC","ST","OBC","General"],"income":{"max":null},"entrepreneur":true,"business_stages":["Idea"],"sectors":["Manufacturing","Services"]},
-    "search_text":"new micro enterprise employment generation subsidy manufacturing service special category SC ST OBC rural urban entrepreneur"
+    "search_text":"new micro enterprise employment generation subsidy manufacturing service special category SC ST OBC rural urban entrepreneur",
+    "source":{"source_name":"Prototype/demo catalogue","source_url":null,"source_type":"other","verified_at":null,"effective_from":null,"effective_until":null,"data_version":"phase-2-demo-1","verification_status":"unverified"}
   },
   {
     "id":"nsfdc-skill",
@@ -63,6 +70,8 @@
     "max_assistance":300000,
     "official_url":"https://nsfdc.nic.in/",
     "eligibility":{"categories":["SC"],"income":{"max":500000},"entrepreneur":true,"business_stages":["Idea","Early"],"sectors":["Manufacturing","Services","Retail","Agriculture","Technology"]},
-    "search_text":"SC scheduled caste skill development entrepreneurship training self employment income five lakh business startup"
+    "search_text":"SC scheduled caste skill development entrepreneurship training self employment income five lakh business startup",
+    "source":{"source_name":"Prototype/demo catalogue","source_url":null,"source_type":"other","verified_at":null,"effective_from":null,"effective_until":null,"data_version":"phase-2-demo-1","verification_status":"unverified"}
   }
-]
+  ]
+}

@@ -33,6 +33,12 @@ def scheme(identifier, name, categories=None):
             "sectors": ["Services"],
         },
         search_text="SC entrepreneur services business idea",
+        source={
+            "source_name": "Test fixture",
+            "source_type": "other",
+            "data_version": "test-1",
+            "verification_status": "unverified",
+        },
     )
 
 
