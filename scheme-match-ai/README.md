@@ -63,6 +63,56 @@ Phase 7 adds a source registry, deterministic document chunking, verified-only l
 
 The current demo catalogue has no registered verified documents, so the default RAG corpus is empty and factual source questions report that verified information is unavailable. Synthetic documents are used only in tests and are labelled `synthetic_test_fixture`. RAG can support explanations, but it never decides eligibility; the deterministic eligibility engine remains authoritative. No real government source was verified during this phase.
 
+## Phase 8: Controlled official-source ingestion and refresh
+
+Phase 8 turns the Phase 7 source registry into a controlled, auditable, human-reviewed ingestion and refresh system. A successful HTTP fetch is **never** treated as verification.
+
+### Source lifecycle
+
+Each source moves through explicit lifecycle states:
+
+- `pending_review` — fetched and extracted, but not yet verified
+- `verified` — explicitly verified by an operator; only verified snapshots serve RAG evidence
+- `rejected` — rejected by an operator; removed from RAG, metadata retained for audit
+- `expired` — expired; removed from RAG, historical snapshot retained
+- `superseded` — replaced by another source; removed from RAG, audit history preserved
+
+### Source allowlist
+
+`data/source_allowlist.json` is the only way a source can be fetched. It is **empty by default**. Each entry contains `source_id`, exact `url`, `source_name`, `allowed_hostname`, `source_type`, optional `scheme_id`, and optional `title`/`description`. Exact hostname and URL matching is used; broad wildcard domains such as `*.gov.in` are not supported.
+
+### URL safety and SSRF protection
+
+- HTTPS only
+- Rejects localhost, loopback, private IP ranges, link-local, multicast, unspecified, IPv6 ULA, IPv4-mapped private addresses, credentials in URLs, malformed URLs, and unsupported schemes
+- DNS is resolved and every resolved IP is validated before fetching
+- TLS verification remains enabled
+- Redirects are not followed automatically; each redirect target is re-validated (HTTPS, allowlisted hostname, SSRF checks) with a maximum of 3 redirects
+- Bounded timeouts: ~5s connect, ~10s read
+- Response size limited to ~2 MiB (checked via Content-Length and while streaming)
+- Only HTML/XHTML accepted; PDF is rejected clearly
+
+### Ingestion lifecycle
+
+1. `POST /api/sources/ingest` with `{"source_id": "..."}` fetches an allowlisted source, extracts normalized text, and stores it as `pending_review`. It is **not** available to verified RAG.
+2. `POST /api/sources/{source_id}/verify` promotes the pending snapshot to verified, updates `data_version`, and replaces the verified RAG document.
+3. `POST /api/sources/{source_id}/reject` marks rejected and removes from RAG.
+4. `POST /api/sources/{source_id}/expire` marks expired and removes from RAG.
+5. `POST /api/sources/{source_id}/supersede` marks superseded (optionally with a replacement source ID) and removes from RAG.
+6. `POST /api/sources/{source_id}/refresh` re-fetches. If the normalized hash is unchanged, no new version is created. If a verified source changes, the old verified snapshot keeps serving while the new content is stored as `pending_review`; only explicit verification replaces the verified RAG content.
+
+### Source admin gating
+
+All source admin/review endpoints are gated by `SOURCE_ADMIN_ENABLED=false` (default). When disabled, they return 404. This is **local/development gating, not production authentication**.
+
+### Conflict detection
+
+Ingestion detects obvious conflicts between new source metadata and the existing catalogue (e.g., a `scheme_id` that does not exist in the catalogue). Conflicts are exposed as review flags only; they never mutate `data/schemes.json`, eligibility rules, benefits, thresholds, or matching logic.
+
+### Persistence
+
+Source state is persisted as JSON under `data/sources/`. The application loads persisted state at startup but **never fetches sources during startup**. The application remains fully usable when the source store is empty.
+
 ## Structured scheme data
 
 The catalogue is versioned and validated before it is used. Each scheme preserves the existing prototype information and has structured eligibility and unverified demo-source metadata. Documents, application steps, coverage, agencies, and application URLs remain unknown when the catalogue does not provide them; facts are not invented. Future authoritative government data must include its source and verification metadata. Phase 2 still does not use an LLM, RAG, OCR, embeddings, or a vector database.

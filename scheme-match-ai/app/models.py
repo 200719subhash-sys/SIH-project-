@@ -129,6 +129,63 @@ class RetrievalRequest(BaseModel):
 
 VerificationStatus = Literal["unverified", "needs_review", "verified"]
 
+SourceLifecycleStatus = Literal["pending_review", "verified", "rejected", "expired", "superseded"]
+
+
+class SourceSnapshot(BaseModel):
+    """A single fetched/extracted snapshot of a source document."""
+    content_hash: str = Field(min_length=1)
+    normalized_text: str = ""
+    fetched_at: str | None = None
+    data_version: str = Field(min_length=1)
+    errors: list[str] = Field(default_factory=list)
+    review_notes: str | None = None
+    reviewed_at: str | None = None
+    reviewed_by: str | None = None
+
+
+class SourceState(BaseModel):
+    """Persisted lifecycle state for a single source."""
+    source_id: str = Field(min_length=1)
+    lifecycle_status: SourceLifecycleStatus = "pending_review"
+    allowlisted: bool = False
+    content_hash: str | None = None
+    fetched_at: str | None = None
+    data_version: str = Field(default="0", min_length=1)
+    errors: list[str] = Field(default_factory=list)
+    conflict_flags: list[str] = Field(default_factory=list)
+    pending_snapshot: SourceSnapshot | None = None
+    verified_snapshot: SourceSnapshot | None = None
+    historical_snapshots: list[SourceSnapshot] = Field(default_factory=list)
+    superseded_by: str | None = None
+    rejected_reason: str | None = None
+    expired_at: str | None = None
+    verified_at: str | None = None
+
+
+class IngestRequest(BaseModel):
+    source_id: str = Field(min_length=1)
+
+
+class ReviewSourceRecord(BaseModel):
+    source_id: str
+    lifecycle_status: SourceLifecycleStatus
+    allowlisted: bool
+    content_hash: str | None = None
+    fetched_at: str | None = None
+    data_version: str
+    errors: list[str] = Field(default_factory=list)
+    conflict_flags: list[str] = Field(default_factory=list)
+    has_pending_snapshot: bool = False
+    has_verified_snapshot: bool = False
+    superseded_by: str | None = None
+    rejected_reason: str | None = None
+    verified_at: str | None = None
+
+
+class SupersedeRequest(BaseModel):
+    replacement_source_id: str | None = None
+
 
 class SourceRecord(BaseModel):
     source_id: str = Field(min_length=1)

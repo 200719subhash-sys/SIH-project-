@@ -50,6 +50,22 @@ class RagCorpus:
             raise ValueError(f"document references unknown source: {document.source_id}")
         self.documents.append(document)
 
+    def set_document(self, document: RegisteredDocument) -> None:
+        """Replace (or add) the document for a source.
+
+        This is the explicit operation used when a verified snapshot is
+        promoted.  It never appends pending content onto a verified
+        source accidentally.
+        """
+        if not self.source_registry.get(document.source_id):
+            raise ValueError(f"document references unknown source: {document.source_id}")
+        self.remove_document(document.source_id)
+        self.documents.append(document)
+
+    def remove_document(self, source_id: str) -> None:
+        """Remove all documents for a source (used on reject/expire/supersede)."""
+        self.documents = [document for document in self.documents if document.source_id != source_id]
+
     def chunks(self, verified_only: bool = True) -> list[DocumentChunk]:
         allowed = {source.source_id for source in (self.source_registry.verified() if verified_only else self.source_registry.all())}
         return [chunk for document in self.documents if document.source_id in allowed for chunk in chunk_document(document)]

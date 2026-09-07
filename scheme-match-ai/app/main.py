@@ -1,21 +1,42 @@
+import os
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, HTTPException
 from pathlib import Path
 
+from .allowlist import load_allowlist
 from .catalogue import SchemeDataError, load_catalogue
 from .chat import orchestrate_chat
+from .fetcher import HttpxFetcher
+from .ingestion import IngestionError, IngestionService
 from .matching import match_schemes, score_scheme
-from .models import ChatRequest, ChatResponse, MatchProfile, Profile, ProfileExtractionRequest, RagQueryRequest, RagQueryResponse, RetrievalRequest, RetrievalResponse, SourceRecord, TextMatchResponse, Scheme
+from .models import ChatRequest, ChatResponse, IngestRequest, MatchProfile, Profile, ProfileExtractionRequest, RagQueryRequest, RagQueryResponse, RetrievalRequest, RetrievalResponse, SourceRecord, SupersedeRequest, TextMatchResponse, Scheme
 from .profile_extraction import extracted_to_profile, extract_profile
 from .rag import DEFAULT_RAG_CORPUS
 from .retrieval import retrieve_schemes
+from .source_store import SourceStore
 from .sources import DEFAULT_SOURCE_REGISTRY
 
 BASE = Path(__file__).resolve().parent.parent
 DATA = BASE / "data" / "schemes.json"
+ALLOWLIST_PATH = BASE / "data" / "source_allowlist.json"
+SOURCES_DIR = BASE / "data" / "sources"
 app = FastAPI(title="SahayakAI — AI Scheme Matching", version="1.0.0")
 app.mount("/static", StaticFiles(directory=BASE / "app" / "static"), name="static")
+
+SOURCE_ADMIN_ENABLED = os.getenv("SOURCE_ADMIN_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+_allowlist = load_allowlist(ALLOWLIST_PATH)
+_source_store = SourceStore(SOURCES_DIR)
+_ingestion = IngestionService(
+    allowlist=_allowlist,
+    fetcher=HttpxFetcher(),
+    store=_source_store,
+    rag_corpus=DEFAULT_RAG_CORPUS,
+    source_registry=DEFAULT_SOURCE_REGISTRY,
+    catalogue_path=DATA,
+)
+_ingestion.load_persisted()
 
 def load_schemes() -> list[Scheme]:
     return load_catalogue(DATA).schemes
@@ -128,3 +149,82 @@ def chat(req: ChatRequest):
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=503, detail="The assistant is temporarily unavailable.") from exc
+
+
+# ----------------------------------------------------------------------
+# Source admin / review endpoints (Phase 8)
+#
+# These are local/development gating endpoints, NOT production
+# authentication.  When SOURCE_ADMIN_ENABLED is false (the default),
+# all mutation/review endpoints return 404.
+# ----------------------------------------------------------------------
+def _require_source_admin() -> None:
+    if not SOURCE_ADMIN_ENABLED:
+        raise HTTPException(status_code=404, detail="Source admin endpoints are disabled")
+
+
+@app.post("/api/sources/ingest")
+def source_ingest(request: IngestRequest):
+    _require_source_admin()
+    try:
+        state = _ingestion.ingest(request.source_id)
+        return state.model_dump(mode="json")
+    except IngestionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/sources/review")
+def source_review():
+    _require_source_admin()
+    return [record.model_dump(mode="json") for record in _ingestion.review()]
+
+
+@app.post("/api/sources/{source_id}/verify")
+def source_verify(source_id: str):
+    _require_source_admin()
+    try:
+        state = _ingestion.verify(source_id)
+        return state.model_dump(mode="json")
+    except IngestionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/sources/{source_id}/reject")
+def source_reject(source_id: str, reason: str | None = None):
+    _require_source_admin()
+    try:
+        state = _ingestion.reject(source_id, reason)
+        return state.model_dump(mode="json")
+    except IngestionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/sources/{source_id}/expire")
+def source_expire(source_id: str):
+    _require_source_admin()
+    try:
+        state = _ingestion.expire(source_id)
+        return state.model_dump(mode="json")
+    except IngestionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/sources/{source_id}/supersede")
+def source_supersede(source_id: str, request: SupersedeRequest | None = None):
+    _require_source_admin()
+    try:
+        replacement = request.replacement_source_id if request else None
+        state = _ingestion.supersede(source_id, replacement)
+        return state.model_dump(mode="json")
+    except IngestionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/sources/{source_id}/refresh")
+def source_refresh(source_id: str):
+    _require_source_admin()
+    try:
+        state = _ingestion.refresh(source_id)
+        return state.model_dump(mode="json")
+    except IngestionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

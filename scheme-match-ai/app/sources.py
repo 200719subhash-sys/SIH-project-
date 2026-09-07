@@ -25,5 +25,8 @@ class SourceRegistry:
     def verified(self) -> list[SourceRecord]:
         return [source for source in self._sources.values() if source.verification_status == "verified"]
 
+    def remove(self, source_id: str) -> None:
+        self._sources.pop(source_id, None)
+
 
 DEFAULT_SOURCE_REGISTRY = SourceRegistry()
