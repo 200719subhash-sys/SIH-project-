@@ -15,6 +15,7 @@ from .models import (
     Scheme,
 )
 from .profile_extraction import extract_profile, extracted_to_profile
+from .retrieval import retrieve_schemes
 
 
 TOOL_NAMES = {
@@ -90,7 +91,10 @@ def _get_scheme(schemes: list[Scheme], scheme_id: str | None) -> Scheme | None:
 
 
 def _match_tool(profile: Profile) -> dict[str, Any]:
-    schemes = load_catalogue_from_app().schemes
+    catalogue = load_catalogue_from_app()
+    retrieved, retrieval_method = retrieve_schemes(catalogue, profile=profile, top_k=len(catalogue.schemes))
+    scheme_by_id = {scheme.id: scheme for scheme in catalogue.schemes}
+    schemes = [scheme_by_id[item.scheme["id"]] for item in retrieved]
     results, needs = match_schemes(schemes, profile)
     not_eligible = [score_scheme(scheme, profile) for scheme in schemes]
     not_eligible = [item for item in not_eligible if item.status == "not_eligible"]
@@ -98,6 +102,7 @@ def _match_tool(profile: Profile) -> dict[str, Any]:
         "results": [item.model_dump(mode="json") for item in results],
         "needs_information": [item.model_dump(mode="json") for item in needs],
         "not_eligible": [item.model_dump(mode="json") for item in not_eligible],
+        "retrieval": {"method": retrieval_method, "candidates": [item.model_dump(mode="json") for item in retrieved]},
     }
 
 

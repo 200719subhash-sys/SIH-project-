@@ -106,6 +106,26 @@ class TextMatchResponse(BaseModel):
     match: dict[str, Any] | None = None
 
 
+class RetrievalCandidate(BaseModel):
+    scheme: dict[str, Any]
+    lexical_score: float
+    semantic_score: float = 0.0
+    hybrid_score: float
+    retrieval_factors: list[str] = Field(default_factory=list)
+
+
+class RetrievalResponse(BaseModel):
+    candidates: list[RetrievalCandidate]
+    retrieval_method: Literal["hybrid", "lexical"]
+    scheme_data_version: str
+
+
+class RetrievalRequest(BaseModel):
+    query: str = ""
+    profile: Profile | None = None
+    top_k: int = Field(default=5, ge=1, le=50)
+
+
 class IncomeRule(BaseModel):
     min: float | None = Field(default=None, ge=0)
     max: float | None = Field(default=None, ge=0)

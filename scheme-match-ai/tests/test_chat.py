@@ -46,6 +46,12 @@ def test_recommendation_uses_deterministic_matches():
     assert "match score" in response.reply.lower()
 
 
+def test_recommendation_tool_remains_deterministic():
+    response = orchestrate_chat(ChatRequest(message="Which schemes can I get?", profile=profile()))
+    assert response.scheme_ids
+    assert response.tool_used == "match_schemes"
+
+
 def test_profile_updates_prefer_latest_explicit_fact():
     first = orchestrate_chat(ChatRequest(message="I'm 27 and my income is 3 lakh", profile=profile()))
     updated_profile = Profile.model_validate({**profile().model_dump(), **first.profile_updates})

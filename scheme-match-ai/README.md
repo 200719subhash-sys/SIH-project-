@@ -51,6 +51,12 @@ Chat now routes messages through a small typed intent orchestrator: user message
 
 The chat layer may extract and merge explicit profile facts, but it cannot modify scheme data, execute arbitrary tools, or decide eligibility. Scheme facts come only from the validated catalogue, and missing catalogue information is reported as unavailable. The local deterministic intent fallback works without an LLM provider; `LLM output does not determine eligibility.`
 
+## Phase 6: Semantic + hybrid retrieval
+
+Phase 6 adds a local retrieval layer with deterministic TF-IDF lexical ranking and an optional semantic encoder interface. When no semantic encoder is available, retrieval uses lexical mode and the application remains fully functional offline. Hybrid mode combines lexical and semantic relevance with deterministic weights; retrieval relevance is not an eligibility or approval decision.
+
+`POST /api/retrieve` returns candidate schemes and retrieval scores only. `/api/match` evaluates the full validated catalogue through the deterministic eligibility engine and adds retrieval metadata without allowing retrieval scores to override eligibility. Current records remain subject to their catalogue verification status.
+
 ## Structured scheme data
 
 The catalogue is versioned and validated before it is used. Each scheme preserves the existing prototype information and has structured eligibility and unverified demo-source metadata. Documents, application steps, coverage, agencies, and application URLs remain unknown when the catalogue does not provide them; facts are not invented. Future authoritative government data must include its source and verification metadata. Phase 2 still does not use an LLM, RAG, OCR, embeddings, or a vector database.

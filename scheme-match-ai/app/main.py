@@ -6,8 +6,9 @@ from pathlib import Path
 from .catalogue import SchemeDataError, load_catalogue
 from .chat import orchestrate_chat
 from .matching import match_schemes, score_scheme
-from .models import ChatRequest, ChatResponse, MatchProfile, Profile, ProfileExtractionRequest, TextMatchResponse, Scheme
+from .models import ChatRequest, ChatResponse, MatchProfile, Profile, ProfileExtractionRequest, RetrievalRequest, RetrievalResponse, TextMatchResponse, Scheme
 from .profile_extraction import extracted_to_profile, extract_profile
+from .retrieval import retrieve_schemes
 
 BASE = Path(__file__).resolve().parent.parent
 DATA = BASE / "data" / "schemes.json"
@@ -35,7 +36,11 @@ def schemes():
 
 def _match_payload(p: Profile) -> dict:
     try:
-        schemes = load_schemes()
+        catalogue = load_catalogue(DATA)
+        schemes = catalogue.schemes
+        retrieved, retrieval_method = retrieve_schemes(catalogue, profile=p, top_k=len(schemes))
+        scheme_by_id = {scheme.id: scheme for scheme in schemes}
+        schemes = [scheme_by_id[item.scheme["id"]] for item in retrieved]
         results, needs_information = match_schemes(schemes, p)
         not_eligible = []
         for scheme in schemes:
@@ -52,7 +57,23 @@ def _match_payload(p: Profile) -> dict:
         "results": [result.model_dump(mode="json") for result in results],
         "needs_information": [result.model_dump(mode="json") for result in needs_information],
         "not_eligible": [result.model_dump(mode="json") for result in not_eligible],
+        "retrieval": {
+            "method": retrieval_method,
+            "candidates": [item.model_dump(mode="json") for item in retrieved],
+        },
     }
+
+
+@app.post("/api/retrieve", response_model=RetrievalResponse)
+def retrieve(request: RetrievalRequest):
+    try:
+        catalogue = load_catalogue(DATA)
+        candidates, method = retrieve_schemes(catalogue, query=request.query, profile=request.profile, top_k=request.top_k)
+        return RetrievalResponse(candidates=candidates, retrieval_method=method, scheme_data_version=catalogue.scheme_data_version)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except SchemeDataError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @app.post("/api/match")

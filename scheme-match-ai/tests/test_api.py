@@ -45,6 +45,7 @@ def test_valid_match_request():
     assert result["missing_information"] == []
     assert result["verification"]["status"] == "unverified"
     assert "probability" not in response.text.lower()
+    assert response.json()["retrieval"]["method"] == "lexical"
 
 
 def test_match_returns_not_eligible_explanations():
@@ -145,3 +146,16 @@ def test_chat_routes_scheme_specific_catalogue_question():
     assert body["intent"] == "documents"
     assert body["tool_used"] == "get_documents"
     assert "does not contain verified document information" in body["reply"]
+
+
+def test_retrieve_endpoint_returns_candidates_not_eligibility():
+    response = client.post("/api/retrieve", json={"query": "small business financing", "top_k": 3})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["retrieval_method"] == "lexical"
+    assert len(body["candidates"]) == 3
+    assert "status" not in body["candidates"][0]
+
+
+def test_retrieve_endpoint_rejects_invalid_top_k():
+    assert client.post("/api/retrieve", json={"query": "finance", "top_k": 0}).status_code == 422
