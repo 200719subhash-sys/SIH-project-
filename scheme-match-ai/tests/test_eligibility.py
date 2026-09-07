@@ -73,3 +73,17 @@ def test_unknown_state_needs_information():
     assert result.status == "needs_information"
     assert result.missing_information == ["state"]
     assert result.rules[0].status == "unknown"
+
+
+def test_multiple_unknown_eligibility_fields_are_needs_information():
+    current = scheme(categories=["SC"], income={"max": 500000}, states=["Delhi"])
+    result = evaluate_eligibility(current, profile(social_category=None, annual_income=None, state=None))
+    assert result.status == "needs_information"
+    assert set(result.missing_information) == {"social_category", "annual_income", "state"}
+
+
+def test_missing_category_is_not_ineligible():
+    result = evaluate_eligibility(scheme(categories=["SC"]), profile(social_category=None))
+    assert result.status == "needs_information"
+    assert result.failed_rules == []
+    assert result.missing_information == ["social_category"]

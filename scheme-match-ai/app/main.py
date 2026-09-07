@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from pathlib import Path
 
 from .catalogue import SchemeDataError, load_catalogue
-from .matching import match_schemes
+from .matching import match_schemes, score_scheme
 from .models import ChatRequest, Profile, Scheme
 
 BASE = Path(__file__).resolve().parent.parent
@@ -34,7 +34,13 @@ def schemes():
 @app.post("/api/match")
 def match(p: Profile):
     try:
-        results, needs_information = match_schemes(load_schemes(), p)
+        schemes = load_schemes()
+        results, needs_information = match_schemes(schemes, p)
+        not_eligible = []
+        for scheme in schemes:
+            result = score_scheme(scheme, p)
+            if result.status == "not_eligible":
+                not_eligible.append(result)
     except SchemeDataError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     except Exception as exc:
@@ -44,6 +50,7 @@ def match(p: Profile):
         "count": len(results),
         "results": [result.model_dump(mode="json") for result in results],
         "needs_information": [result.model_dump(mode="json") for result in needs_information],
+        "not_eligible": [result.model_dump(mode="json") for result in not_eligible],
     }
 
 @app.post("/api/chat")

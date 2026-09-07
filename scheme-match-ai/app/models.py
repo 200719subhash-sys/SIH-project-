@@ -8,10 +8,10 @@ class Profile(BaseModel):
     name: str = ""
     state: str | None = None
     district: str = ""
-    age: int = Field(ge=18, le=100)
+    age: int | None = Field(default=None, ge=18, le=100)
     gender: str = "Any"
-    social_category: str
-    annual_income: float = Field(ge=0)
+    social_category: str | None = None
+    annual_income: float | None = Field(default=None, ge=0)
     entrepreneur: bool = True
     business_stage: str = "Idea"
     sector: str
@@ -177,7 +177,28 @@ class MatchResult(BaseModel):
     match_score: float
     rules: list[RuleResult] = Field(default_factory=list)
     reasons: list[str] = Field(default_factory=list)
-    passed_rules: list[str] = Field(default_factory=list)
-    failed_rules: list[str] = Field(default_factory=list)
-    missing_information: list[str] = Field(default_factory=list)
     score_components: ScoreComponents
+    why_match: list[str] = Field(default_factory=list)
+    why_not_eligible: list[str] = Field(default_factory=list)
+    passed_rules: list["RuleExplanation"] = Field(default_factory=list)
+    failed_rules: list["RuleExplanation"] = Field(default_factory=list)
+    missing_information: list["MissingInformation"] = Field(default_factory=list)
+    score_breakdown: ScoreComponents
+    ranking_factors: list[str] = Field(default_factory=list)
+    confidence: Literal["high", "medium", "low"]
+    verification: "VerificationExplanation"
+
+
+class RuleExplanation(BaseModel):
+    rule: str
+    message: str
+
+
+class MissingInformation(BaseModel):
+    field: str
+    message: str
+
+
+class VerificationExplanation(BaseModel):
+    status: VerificationStatus
+    message: str

@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from .eligibility import evaluate_eligibility
+from .explanations import build_explanation
 from .models import MatchResult, Profile, Scheme, ScoreComponents
 
 
@@ -56,17 +57,21 @@ def score_scheme(scheme: Scheme | dict[str, Any], profile: Profile) -> MatchResu
         components.text_similarity = _text_similarity(profile, normalized) * 5
 
     score = min(99.0, round(components.total, 1))
-    return MatchResult(
+    result = MatchResult(
         scheme=normalized.model_dump(mode="json"),
         status=eligibility.status,
         match_score=score,
         rules=eligibility.rules,
         reasons=eligibility.reasons[:5],
-        passed_rules=eligibility.passed_rules,
-        failed_rules=eligibility.failed_rules,
-        missing_information=eligibility.missing_information,
+        passed_rules=[],
+        failed_rules=[],
+        missing_information=[],
         score_components=components,
+        score_breakdown=components,
+        confidence="low",
+        verification={"status": normalized.source.verification_status, "message": ""},
     )
+    return build_explanation(normalized, eligibility, components, result)
 
 
 def match_schemes(schemes: list[Scheme], profile: Profile) -> tuple[list[MatchResult], list[MatchResult]]:

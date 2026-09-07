@@ -17,48 +17,53 @@ def evaluate_eligibility(scheme: Scheme, profile: Profile) -> EligibilityResult:
 
     if criteria.categories:
         if not _known(profile.social_category):
-            rules.append(_rule("social_category", "unknown", "Social category is required"))
+            rules.append(_rule("social_category", "unknown", "Your social category is needed to determine eligibility."))
         elif profile.social_category in criteria.categories:
-            rules.append(_rule("social_category", "passed", "Social category is covered"))
+            rules.append(_rule("social_category", "passed", "Your social category matches the scheme requirement."))
         else:
-            rules.append(_rule("social_category", "failed", "Social category does not match"))
+            rules.append(_rule("social_category", "failed", "Your social category is not included in the scheme requirement."))
 
     if criteria.income is not None:
         income = profile.annual_income
         if not _known(income):
-            rules.append(_rule("annual_income", "unknown", "Annual family income is required"))
+            rules.append(_rule("annual_income", "unknown", "Your annual family income is needed to determine eligibility."))
         elif criteria.income.max is not None and income > criteria.income.max:
-            rules.append(_rule("annual_income", "failed", "Annual family income is above the scheme limit"))
+            rules.append(_rule("annual_income", "failed", f"Your annual family income is ₹{income:,.0f}, while this scheme requires income of ₹{criteria.income.max:,.0f} or below."))
         elif criteria.income.min is not None and income < criteria.income.min:
-            rules.append(_rule("annual_income", "failed", "Annual family income is below the scheme limit"))
+            rules.append(_rule("annual_income", "failed", f"Your annual family income is ₹{income:,.0f}, while this scheme requires income of at least ₹{criteria.income.min:,.0f}."))
         else:
-            rules.append(_rule("annual_income", "passed", "Annual family income is within the scheme limit"))
+            rules.append(_rule("annual_income", "passed", "Your annual family income is within the scheme's stated income limit."))
 
     if criteria.states:
         if not _known(profile.state):
-            rules.append(_rule("state", "unknown", "State is required"))
+            rules.append(_rule("state", "unknown", "Your state is needed to determine eligibility."))
         elif profile.state in criteria.states:
-            rules.append(_rule("state", "passed", "State is covered"))
+            rules.append(_rule("state", "passed", "Your state is included in the scheme's stated coverage."))
         else:
-            rules.append(_rule("state", "failed", "State is outside the listed coverage"))
+            rules.append(_rule("state", "failed", "Your state is outside the scheme's stated coverage."))
 
     if criteria.min_age is not None:
-        if profile.age < criteria.min_age:
-            rules.append(_rule("min_age", "failed", "Applicant is below the minimum age"))
+        if profile.age is None:
+            rules.append(_rule("age", "unknown", "Your age is needed to determine eligibility."))
+        elif profile.age < criteria.min_age:
+            rules.append(_rule("age", "failed", f"Your age is below the scheme's minimum age of {criteria.min_age}."))
         else:
-            rules.append(_rule("min_age", "passed", "Applicant meets the minimum age"))
+            rules.append(_rule("age", "passed", "Your age meets the scheme's minimum age requirement."))
 
     if criteria.max_age is not None:
-        if profile.age > criteria.max_age:
-            rules.append(_rule("max_age", "failed", "Applicant is above the maximum age"))
+        if profile.age is None:
+            if not any(item.rule == "age" for item in rules):
+                rules.append(_rule("age", "unknown", "Your age is needed to determine eligibility."))
+        elif profile.age > criteria.max_age:
+            rules.append(_rule("age", "failed", f"Your age is above the scheme's maximum age of {criteria.max_age}."))
         else:
-            rules.append(_rule("max_age", "passed", "Applicant meets the maximum age"))
+            rules.append(_rule("age", "passed", "Your age falls within the scheme's stated age range."))
 
     boolean_rules = (
-        ("entrepreneur", criteria.entrepreneur, profile.entrepreneur, "Scheme is intended for entrepreneurs", "Entrepreneur status is covered"),
-        ("student", criteria.student, profile.student, "Student status is required", "Student status is covered"),
-        ("disability", criteria.disability, profile.disability, "Disability status is required", "Disability status is covered"),
-        ("rural", criteria.rural, profile.rural, "Rural eligibility is required", "Rural eligibility is covered"),
+        ("entrepreneur", criteria.entrepreneur, profile.entrepreneur, "The scheme requires entrepreneur status.", "The scheme is available to entrepreneurs matching your profile."),
+        ("student", criteria.student, profile.student, "The scheme requires student status.", "The scheme's student requirement matches your profile."),
+        ("disability", criteria.disability, profile.disability, "The scheme requires disability status.", "The scheme's disability requirement matches your profile."),
+        ("rural", criteria.rural, profile.rural, "The scheme requires rural eligibility.", "The scheme's rural requirement matches your profile."),
     )
     for name, required, value, failure_message, pass_message in boolean_rules:
         if required is True:
@@ -66,11 +71,11 @@ def evaluate_eligibility(scheme: Scheme, profile: Profile) -> EligibilityResult:
 
     if criteria.business_stages:
         if not _known(profile.business_stage):
-            rules.append(_rule("business_stage", "unknown", "Business stage is required"))
+            rules.append(_rule("business_stage", "unknown", "Your business stage is needed to determine eligibility."))
         elif profile.business_stage in criteria.business_stages:
-            rules.append(_rule("business_stage", "passed", "Business stage is supported"))
+            rules.append(_rule("business_stage", "passed", "Your business stage is supported by the scheme."))
         else:
-            rules.append(_rule("business_stage", "failed", "Business stage does not match"))
+            rules.append(_rule("business_stage", "failed", "Your business stage is not included in the scheme requirement."))
 
     passed = [item.rule for item in rules if item.status == "passed"]
     failed = [item.rule for item in rules if item.status == "failed"]
