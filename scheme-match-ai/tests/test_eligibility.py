@@ -9,6 +9,7 @@ def profile(**overrides):
         "social_category": "SC",
         "annual_income": 500000,
         "sector": "Services",
+        
     }
     values.update(overrides)
     return Profile(**values)
