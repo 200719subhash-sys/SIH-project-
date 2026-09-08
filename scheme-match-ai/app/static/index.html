@@ -34,7 +34,73 @@ async function init(){try{const r=await fetch('/api/schemes');const d=await r.js
 function profile(){return {name:$('name').value,state:$('state').value,age:+$('age').value,social_category:$('category').value,annual_income:+$('income').value,entrepreneur:$('entrepreneur').checked,business_stage:$('stage').value,sector:$('sector').value,business_type:$('type').value,student:$('student').checked,rural:$('rural').checked,disability:false,veteran:false,education_level:$('education').value,loan_required:+$('loan').value,keywords:$('keywords').value.split(',').map(x=>x.trim()).filter(Boolean)}}
 async function findMatches(){lastProfile=profile();$('results').className='loading';$('results').innerHTML='AI is evaluating eligibility and semantic relevance…';try{const r=await fetch('/api/match',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lastProfile)});const d=await r.json();render(d)}catch(e){$('results').className='empty';$('results').innerHTML='<div>Could not reach the matching engine. Start the server and try again.</div>'}}
 async function findTextMatches(){const text=$('naturalText').value.trim();if(!text)return; $('results').className='loading';$('results').textContent='Extracting your structured profile…';try{const r=await fetch('/api/match/text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});const d=await r.json();const p=d.extraction.profile;const known=Object.entries(p).filter(([k,v])=>v!==null&&v!==''&&(!Array.isArray(v)||v.length)).map(([k,v])=>`${k}: ${Array.isArray(v)?v.join(', '):v}`);$('extractionSummary').textContent=d.extraction.missing_fields.length?`Understood: ${known.join(' • ')}. Still needed: ${d.extraction.missing_fields.join(', ')}.`:`Understood: ${known.join(' • ')}`;if(d.match)render(d.match);else{$('results').className='empty';$('results').innerHTML='<div><b>Profile understood, but more information is needed to match schemes.</b><p>Provide the missing fields shown beside the profile.</p></div>'}}catch(e){$('results').className='empty';$('results').textContent='Natural-language extraction is unavailable. You can still use the structured profile form.'}}
-function render(d){$('resultMeta').textContent=`${d.count} eligible match${d.count===1?'':'es'}`;$('results').className='';if(!d.results.length){$('results').innerHTML='<div class="empty"><div><div class="icon">⌁</div><b>No scheme passed all hard filters.</b><p>Try changing state, income, category, student status or business stage.</p></div></div>';return}$('results').innerHTML=d.results.map(x=>{let s=x.scheme;return `<article class="scheme"><div class="scheme-head"><div><h3>${esc(s.name)}</h3><div class="ministry">${esc(s.ministry)}</div></div><div class="score"><b>${x.match_score}%</b><div class="ministry">match</div></div></div><div class="bar"><i style="width:${x.match_score}%"></i></div><div class="benefit"><b>Benefit:</b> ${esc(s.benefit)}</div><div class="reasons">${x.reasons.map(r=>`<span class="reason">✓ ${esc(r)}</span>`).join('')}</div><div class="scheme-foot"><span class="ministry">${esc(s.description)}</span><a class="link" href="${s.official_url}" target="_blank" rel="noopener">Official source ↗</a></div></article>`}).join('')}
+function render(d){
+  $('resultMeta').textContent = d.count ? `${d.count} eligible match${d.count===1?'':'es'}` : 'No eligible scheme matched';
+  $('results').className='';
+  const results = d.results || [];
+  const otherOutcomes = [...(d.needs_information || []), ...(d.not_eligible || [])];
+  if (!results.length) {
+    $('results').innerHTML = '<div class="empty"><div><div class="icon">⌁</div><b>No scheme passed all hard filters.</b><p>Try adjusting income, category, business stage, location or sector to see more matches.</p></div></div>';
+    if (otherOutcomes.length) {
+      const section = document.createElement('div');
+      section.style.cssText = 'margin-top:14px;';
+      section.innerHTML = '<div class="summary-row"><span class="summary-pill">Eligibility insights</span></span></div>' + otherOutcomes.slice(0,4).map(item => {
+        const details = item.status === 'needs_information' ? (item.missing_information || []).map(x => x.message || x.field).join(' • ') : (item.why_not_eligible || []).join(' • ');
+        return `<div class="detail-box"><b>${esc(item.scheme.name)}</b>${esc(details)}</div>`;
+      }).join('');
+      $('results').appendChild(section);
+    }
+    return;
+  }
+  $('results').innerHTML = `
+    <div class="summary-row">
+      <span class="summary-pill">${results.length} recommended</span>
+      <span class="summary-pill">Deterministic eligibility + explainable ranking</span>
+    </div>
+    ${results.map(x => {
+      const s = x.scheme || {};
+      const status = x.status === 'eligible' ? 'Eligible' : x.status === 'needs_information' ? 'Needs info' : 'Not eligible';
+      const missing = (x.missing_information || []).slice(0, 2).map(item => item.message || item.field).join(' • ');
+      const nextSteps = [
+        s.application_url ? `Apply through official channel: ${s.application_url}` : 'Confirm the current application channel and documents before applying.',
+        s.documents?.length ? `Required documents: ${s.documents.map(doc => doc.name).join(', ')}` : 'Review the scheme’s current official guidelines before submission.'
+      ];
+      return `<article class="scheme">
+        <div class="scheme-head">
+          <div>
+            <h3>${esc(s.name)}</h3>
+            <div class="ministry">${esc(s.ministry)}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <div class="score"><b>${Math.round(x.match_score)}</b><div class="ministry">match</div></div>
+            <span class="status-pill ${esc(x.status)}">${status}</span>
+          </div>
+        </div>
+        <div class="bar"><i style="width:${Math.min(100, Math.max(5, x.match_score))}%"></i></div>
+        <div class="benefit"><b>Benefit:</b> ${esc(s.benefit)}</div>
+        <div class="reasons">${(x.reasons || []).slice(0,4).map(r => `<span class="reason">✓ ${esc(r)}</span>`).join('')}</div>
+        <div class="details-grid">
+          <div class="detail-box"><b>Why this matched</b>${(x.why_match || []).slice(0,3).map(item => esc(item)).join('<br>') || 'No additional explanation provided.'}</div>
+          <div class="detail-box"><b>Next steps</b>${nextSteps.map(item => esc(item)).join('<br>')}</div>
+        </div>
+        ${missing ? `<div class="alert-box">Missing information: ${esc(missing)}</div>` : ''}
+        <div class="scheme-foot">
+          <span class="ministry">${esc(s.description)}</span>
+          <a class="link" href="${s.official_url}" target="_blank" rel="noopener">Official source ↗</a>
+        </div>
+      </article>`;
+    }).join('')}
+  `;
+  if (otherOutcomes.length) {
+    const section = document.createElement('div');
+    section.style.cssText = 'margin-top:16px;';
+    section.innerHTML = '<div class="summary-row"><span class="summary-pill">Eligibility review</span></div>' + otherOutcomes.slice(0,4).map(item => {
+      const details = item.status === 'needs_information' ? (item.missing_information || []).map(x => x.message || x.field).join(' • ') : (item.why_not_eligible || []).join(' • ');
+      return `<div class="detail-box"><b>${esc(item.scheme.name)}</b>${esc(details)}</div>`;
+    }).join('');
+    $('results').appendChild(section);
+  }
+}
 async function sendChat(){const input=$('chatinput');const msg=input.value.trim();if(!msg)return;addMsg(msg,'user');input.value='';try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,profile:lastProfile,selected_scheme_id:selectedSchemeId,conversation_context:chatContext})});const d=await r.json();chatContext=d.conversation_context??chatContext;selectedSchemeId=d.selected_scheme_id??selectedSchemeId;addMsg(`${d.reply}${d.needs_clarification?' Please provide: '+(d.missing_information??[]).join(', '):''}`,'bot')}catch(e){addMsg('The assistant is temporarily unavailable.','bot')}}
 function addMsg(t,c){const box=$('chatbox');box.innerHTML+=`<div class="msg ${c}">${esc(t)}</div>`;box.scrollTop=box.scrollHeight}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
