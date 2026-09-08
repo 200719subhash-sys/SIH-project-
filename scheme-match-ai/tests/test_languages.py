@@ -71,3 +71,41 @@ def test_odia_detection():
 def test_empty_text_rejected():
     with pytest.raises(ValueError, match="empty"):
         detect_language("")
+
+
+def test_gender_normalization():
+    assert normalize_multilingual_value("महिला") == "female"
+    assert normalize_multilingual_value("पुरुष") == "male"
+    assert normalize_multilingual_value("মহিলা") == "female"
+    assert normalize_multilingual_value("পুরুষ") == "male"
+
+
+def test_category_normalization():
+    assert normalize_multilingual_value("अनुसूचित जाति") == "SC"
+    assert normalize_multilingual_value("अनुसूचित जनजाति") == "ST"
+    assert normalize_multilingual_value("অন্যান্য অনগ্রসর শ্রেণি") == "OBC"
+
+
+def test_state_normalization():
+    assert normalize_multilingual_value("दिल्ली") == "Delhi"
+    assert normalize_multilingual_value("মহারাষ্ট্র") == "Maharashtra"
+    assert normalize_multilingual_value("தமிழ்நாடு") == "Tamil Nadu"
+
+
+def test_currency_normalization():
+    assert normalize_multilingual_currency("3.5 लाख") == 350000
+    assert normalize_multilingual_currency("5 कोटी") == 50000000
+    assert normalize_multilingual_currency("2 লাখ") == 200000
+    assert normalize_multilingual_currency("1 కోటి") == 10000000
+
+
+def test_ambiguous_value_returns_none():
+    assert normalize_multilingual_value("कुछ अज्ञात") is None
+    assert normalize_multilingual_currency("अज्ञात") is None
+
+
+def test_original_text_preserved():
+    text = "मैं दिल्ली से हूँ"
+    result = detect_language(text)
+    assert result.original_text == text
+    assert result.normalized_text == text
