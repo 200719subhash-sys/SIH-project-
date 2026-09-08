@@ -15,9 +15,27 @@ python -m venv .venv
 # Windows: .venv\\Scripts\\activate
 # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 Open `http://127.0.0.1:8000`.
+
+## Small-production deployment
+The application is intentionally lightweight and does not depend on external AI services. For a small-production deployment, run the API behind a reverse proxy or process manager with a production environment:
+
+```bash
+set APP_ENV=production
+set LOG_LEVEL=INFO
+set CORS_ALLOW_ORIGINS=http://localhost:3000,https://your-domain.example
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+```
+
+Recommended safeguards:
+- keep `SOURCE_ADMIN_ENABLED=false` unless a human-reviewed admin layer is configured
+- do not expose secrets in frontend code or logs
+- keep the scheme data source reviewed before production release
+- verify the service using the health and readiness endpoints before serving traffic
+
+The app is designed to accept local trusted settings only; it does not execute arbitrary URLs or treat user content as verified government evidence.
 
 ## API
 - `GET /api/health`

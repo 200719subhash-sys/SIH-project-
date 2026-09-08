@@ -1,8 +1,13 @@
+import logging
 import os
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi import FastAPI, HTTPException, UploadFile
+from functools import lru_cache
 from pathlib import Path
+
+from fastapi import FastAPI, HTTPException, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from .allowlist import load_allowlist
 from .catalogue import SchemeDataError, load_catalogue
@@ -23,10 +28,67 @@ BASE = Path(__file__).resolve().parent.parent
 DATA = BASE / "data" / "schemes.json"
 ALLOWLIST_PATH = BASE / "data" / "source_allowlist.json"
 SOURCES_DIR = BASE / "data" / "sources"
-app = FastAPI(title="SahayakAI — AI Scheme Matching", version="1.0.0")
+
+APP_ENV = os.getenv("APP_ENV", "development").strip().lower() or "development"
+APP_ENV = "production" if APP_ENV in {"prod", "production"} else "development"
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO" if APP_ENV == "production" else "DEBUG").upper()
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ALLOW_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000,http://127.0.0.1:8000").split(",")
+    if origin.strip()
+]
+
+logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO), format="%(asctime)s %(levelname)s %(name)s %(message)s")
+logger = logging.getLogger("sahayakai")
+
+app = FastAPI(
+    title="SahayakAI — AI Scheme Matching",
+    version="1.0.0",
+    description="Deterministic scheme matching and explainable guidance for government support programmes.",
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 app.mount("/static", StaticFiles(directory=BASE / "app" / "static"), name="static")
 
 SOURCE_ADMIN_ENABLED = os.getenv("SOURCE_ADMIN_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logger.warning("validation_error path=%s detail=%s", request.url.path, exc.errors())
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.exception("unhandled_exception path=%s", request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error."})
+
+
+@lru_cache(maxsize=1)
+def load_catalogue_cached() -> object:
+    return load_catalogue(DATA)
+
 
 _allowlist = load_allowlist(ALLOWLIST_PATH)
 _source_store = SourceStore(SOURCES_DIR)
@@ -41,7 +103,7 @@ _ingestion = IngestionService(
 _ingestion.load_persisted()
 
 def load_schemes() -> list[Scheme]:
-    return load_catalogue(DATA).schemes
+    return load_catalogue_cached().schemes
 
 @app.get("/")
 def index():
@@ -49,19 +111,38 @@ def index():
 
 @app.get("/api/health")
 def health():
-    return {"status":"ok", "service":"SahayakAI"}
+    return {
+        "status": "ok",
+        "service": "SahayakAI",
+        "environment": APP_ENV,
+        "version": app.version,
+    }
+
+
+@app.get("/api/ready")
+def ready():
+    try:
+        catalogue = load_catalogue(DATA)
+        source_store_ok = True
+        _source_store.load_all()
+        checks = {"catalogue": bool(catalogue.schemes), "source_store": source_store_ok}
+        return {"status": "ready", "environment": APP_ENV, "checks": checks}
+    except Exception as exc:  # pragma: no cover - defensive runtime check
+        logger.exception("readiness_check_failed")
+        raise HTTPException(status_code=503, detail=f"service not ready: {exc}") from exc
+
 
 @app.get("/api/schemes")
 def schemes():
     try:
-        catalogue = load_catalogue(DATA)
+        catalogue = load_catalogue_cached()
         return [scheme.model_dump(mode="json") for scheme in catalogue.schemes]
     except SchemeDataError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 def _match_payload(p: Profile) -> dict:
     try:
-        catalogue = load_catalogue(DATA)
+        catalogue = load_catalogue_cached()
         schemes = catalogue.schemes
         retrieved, retrieval_method = retrieve_schemes(catalogue, profile=p, top_k=len(schemes))
         scheme_by_id = {scheme.id: scheme for scheme in schemes}
@@ -92,7 +173,7 @@ def _match_payload(p: Profile) -> dict:
 @app.post("/api/retrieve", response_model=RetrievalResponse)
 def retrieve(request: RetrievalRequest):
     try:
-        catalogue = load_catalogue(DATA)
+        catalogue = load_catalogue_cached()
         candidates, method = retrieve_schemes(catalogue, query=request.query, profile=request.profile, top_k=request.top_k)
         return RetrievalResponse(candidates=candidates, retrieval_method=method, scheme_data_version=catalogue.scheme_data_version)
     except ValueError as exc:

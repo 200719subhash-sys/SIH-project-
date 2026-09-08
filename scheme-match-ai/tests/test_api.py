@@ -22,7 +22,32 @@ def valid_profile():
 def test_health_endpoint():
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json()["status"] == "ok"
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["service"] == "SahayakAI"
+    assert body["environment"] in {"development", "production"}
+
+
+def test_readiness_endpoint():
+    response = client.get("/api/ready")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ready"
+    assert body["checks"]["catalogue"] is True
+    assert body["checks"]["source_store"] is True
+
+
+def test_runtime_smoke_routes():
+    assert client.get("/").status_code == 200
+    assert client.get("/api/health").status_code == 200
+    assert client.get("/api/schemes").status_code == 200
+    assert client.post("/api/match", json=valid_profile()).status_code == 200
+    assert client.post("/api/profile/extract", json={"text": "I am a 27 year old SC woman from Tamil Nadu."}).status_code == 200
+    assert client.post("/api/match/text", json={"text": "I am a 27 year old SC woman from Tamil Nadu."}).status_code == 200
+    assert client.post("/api/chat", json={"message": "Which schemes can I get?", "profile": valid_profile()}).status_code == 200
+    assert client.post("/api/retrieve", json={"query": "finance for entrepreneurs", "top_k": 2}).status_code == 200
+    assert client.post("/api/rag/query", json={"query": "What documents are required?"}).status_code == 200
+    assert client.get("/api/sources").status_code == 200
 
 
 def test_schemes_endpoint():
