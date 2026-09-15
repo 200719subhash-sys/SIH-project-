@@ -199,4 +199,3 @@ The included scheme catalogue is **prototype/demo data**, not a claim that these
 5. consent, encryption, audit logs and role-based admin access.
 6. district-level implementing-agency routing.
 7. eligibility confidence + “missing information” state rather than binary assumptions.
-ī
