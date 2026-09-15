@@ -5,7 +5,7 @@
 <title>SahayakAI — Scheme Matching</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0b0d10;--panel:#12161b;--panel2:#181d23;--line:#2b323b;--text:#f4f6f8;--muted:#9aa4af;--accent:#ff7043;--good:#53d18b;--warn:#ffd166}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#302019 0,#0b0d10 38%);color:var(--text);font-family:Inter,system-ui,sans-serif}button,input,select{font:inherit}.app{max-width:1240px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#ff8a65,#ff4d2d);display:grid;place-items:center;font-weight:800}.brand b{font-size:19px}.brand small{display:block;color:var(--muted);margin-top:3px}.badge{border:1px solid #6d3829;background:#211712;color:#ff9b7a;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700}.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;margin-bottom:18px}.card{background:rgba(18,22,27,.92);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 12px 40px #0004}.hero h1{font-size:38px;line-height:1.08;margin:0 0 12px;letter-spacing:-1.4px}.hero p{color:var(--muted);line-height:1.65;margin:0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:var(--panel2);padding:15px;border-radius:14px;border:1px solid var(--line)}.stat b{font-size:25px}.stat span{display:block;color:var(--muted);font-size:12px;margin-top:5px}.layout{display:grid;grid-template-columns:390px 1fr;gap:18px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.section-title h2{font-size:18px;margin:0}.step{font-size:12px;color:var(--muted)}.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:#c2c9d1}.field input,.field select{background:#0e1216;color:var(--text);border:1px solid var(--line);padding:11px 12px;border-radius:10px;outline:none}.field input:focus,.field select:focus{border-color:#b64d32}.check{display:flex;gap:9px;align-items:center;background:#0e1216;border:1px solid var(--line);padding:10px;border-radius:10px;color:#c2c9d1;font-size:12px}.check input{accent-color:var(--accent)}.primary{width:100%;border:0;background:linear-gradient(135deg,#ff815a,#ff5634);color:white;padding:13px;border-radius:11px;font-weight:800;cursor:pointer;margin-top:14px}.primary:disabled{opacity:.6}.results{min-height:500px}.empty{display:grid;place-items:center;min-height:430px;text-align:center;color:var(--muted);padding:40px}.empty .icon{font-size:42px;margin-bottom:12px}.scheme{background:#101419;border:1px solid var(--line);border-radius:15px;padding:17px;margin-bottom:12px}.scheme-head{display:flex;justify-content:space-between;gap:15px}.scheme h3{margin:0 0 7px;font-size:16px}.scheme .ministry{font-size:11px;color:var(--muted)}.score{min-width:70px;text-align:right}.score b{font-size:22px;color:var(--good)}.bar{height:5px;background:#272e35;border-radius:8px;overflow:hidden;margin:9px 0 12px}.bar i{display:block;height:100%;background:var(--good);border-radius:8px}.benefit{font-size:12px;color:#c8ced5;line-height:1.5}.reasons{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.reason{font-size:10px;background:#17221c;color:#8ee1b1;border:1px solid #264433;border-radius:999px;padding:5px 8px}.scheme-foot{display:flex;justify-content:space-between;align-items:center;margin-top:13px}.link{color:#ff9b7a;text-decoration:none;font-size:11px;font-weight:700}.chat{margin-top:18px}.chatbox{height:220px;overflow:auto;background:#0d1115;border:1px solid var(--line);border-radius:12px;padding:12px}.msg{max-width:88%;padding:9px 11px;border-radius:11px;margin:7px 0;font-size:12px;line-height:1.5}.bot{background:#191f25;color:#d8dee5}.user{background:#4a241a;margin-left:auto}.chatrow{display:flex;gap:8px;margin-top:9px}.chatrow input{flex:1;background:#0e1216;color:white;border:1px solid var(--line);padding:10px;border-radius:10px}.chatrow button{border:1px solid var(--line);background:#191f25;color:white;border-radius:10px;padding:0 15px;cursor:pointer}.notice{font-size:10px;color:#727c86;line-height:1.5;margin-top:12px}.loading{color:var(--muted);padding:30px}.toast{position:fixed;right:20px;bottom:20px;background:#161c21;border:1px solid var(--line);padding:12px 14px;border-radius:10px;display:none;font-size:12px}@media(max-width:900px){.hero,.layout{grid-template-columns:1fr}.hero h1{font-size:30px}}@media(max-width:520px){.app{padding:14px}.form{grid-template-columns:1fr}.field.full{grid-column:auto}.top .badge{display:none}}
+:root{--bg:#0b0d10;--panel:#12161b;--panel2:#181d23;--line:#2b323b;--text:#f4f6f8;--muted:#9aa4af;--accent:#ff7043;--good:#53d18b;--warn:#ffd166}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#302019 0,#0b0d10 38%);color:var(--text);font-family:Inter,system-ui,sans-serif}button,input,select{font:inherit}.app{max-width:1240px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#ff8a65,#ff4d2d);display:grid;place-items:center;font-weight:800}.brand b{font-size:19px}.brand small{display:block;color:var(--muted);margin-top:3px}.badge{border:1px solid #6d3829;background:#211712;color:#ff9b7a;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700}.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;margin-bottom:18px}.card{background:rgba(18,22,27,.92);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 12px 40px #0004}.hero h1{font-size:38px;line-height:1.08;margin:0 0 12px;letter-spacing:-1.4px}.hero p{color:var(--muted);line-height:1.65;margin:0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:var(--panel2);padding:15px;border-radius:14px;border:1px solid var(--line)}.stat b{font-size:25px}.stat span{display:block;color:var(--muted);font-size:12px;margin-top:5px}.layout{display:grid;grid-template-columns:390px 1fr;gap:18px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.section-title h2{font-size:18px;margin:0}.step{font-size:12px;color:var(--muted)}.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:#c2c9d1}.field input,.field select{background:#0e1216;color:var(--text);border:1px solid var(--line);padding:}.voice-card{display:flex;flex-direction:column;gap:14px}.voice-controls{display:flex;flex-direction:column;gap:10px}.voice-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.voice-buttons button{min-height:48px;border-radius:12px;border:1px solid var(--line);background:#10161b;color:var(--text);padding:10px 12px;cursor:pointer;font-weight:700}.voice-buttons button.primary,.voice-buttons button.danger{color:#fff}.voice-buttons button.primary{background:linear-gradient(135deg,#ff8a65,#ff4d2d)}.voice-buttons button.danger{background:#3b1f1f;border-color:#6f3939}.voice-state{display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--line)}.voice-state.ready{background:#132822;color:#89e39d;border-color:#2d5b47}.voice-state.listening{background:#2a2d14;color:#f7d77a;border-color:#8f7b34}.voice-state.speaking{background:#2e1b11;color:#ffbd93;border-color:#8a4c2f}.voice-state.error{background:#2f1a1d;color:#ff9fa8;border-color:#7f3f46}.voice-state.confirming{background:#201e2b;color:#d4c3ff;border-color:#564a7a}.voice-status-block{display:flex;justify-content:space-between;align-items:center;gap:10px}.voice-progress{font-size:12px;color:var(--muted)}.voice-question-box{border:1px solid var(--line);background:#10161b;border-radius:12px;padding:16px;min-height:72px}.voice-question-box p{margin:0;line-height:1.5;font-size:15px}.voice-transcript{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);color:#dfe8f0}.voice-confirmation{display:block;padding:16px;border:1px solid var(--line);border-radius:12px;background:rgba(121,92,255,.06)}.voice-confirmation.hidden{display:none}.voice-confirmation h3{margin:0 0 8px}.voice-confirmation ul{padding-left:18px;margin:8px 0 12px;line-height:1.6}.voice-confirmation-actions{display:flex;gap:10px;flex-wrap:wrap}.field-label{font-size:12px;color:#c2c9d1}.voice-controls select{background:#0e1216;color:var(--text);border:1px solid var(--line);padding:10px 12px;border-radius:10px}.voice-controls button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(255,128,89,.8);outline-offset:2px}@}.voice-card{display:flex;flex-direction:column;gap:14px}.voice-controls{display:flex;flex-direction:column;gap:10px}.voice-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.voice-buttons button{min-height:48px;border-radius:12px;border:1px solid var(--line);background:#10161b;color:var(--text);padding:10px 12px;cursor:pointer;font-weight:700}.voice-buttons button.primary,.voice-buttons button.danger{color:#fff}.voice-buttons button.primary{background:linear-gradient(135deg,#ff8a65,#ff4d2d)}.voice-buttons button.danger{background:#3b1f1f;border-color:#6f3939}.voice-state-block{display:flex;justify-content:space-between;align-items:center}.voice-state{display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--line)}.voice-state.ready{background:#132822;color:#89e39d;border-color:#2d5b47}.voice-state.listening{background:#2a2d14;color:#f7d77a;border-color:#8f7b34}.voice-state.speaking{background:#2e1b11;color:#ffbd93;border-color:#8a4c2f}.voice-state.error{background:#2f1a1d;color:#ff9fa8;border-color:#7f3f46}.voice-state.confirming{background:#201e2b;color:#d4c3ff;border-color:#564a7a}.voice-progress{font-size:12px;color:var(--muted)}.voice-question-box{border:1px solid var(--line);background:#10161b;border-radius:12px;padding:16px;min-height:72px}.voice-question-box p{margin:0;line-height:1.5;font-size:15px}.voice-transcript{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);color:#dfe8f0}.voice-confirmation{display:block;padding:16px;border:1px solid var(--line);border-radius:12px;background:rgba(121,92,255,.06)}.voice-confirmation.hidden{display:none}.voice-confirmation h3{margin:0 0 8px}.voice-confirmation ul{padding-left:18px;margin:8px 0 12px;line-height:1.6}.voice-confirmation-actions{display:flex;gap:10px;flex-wrap:wrap}.field-label{font-size:12px;color:#c2c9d1}.voice-controls select{background:#0e1216;color:var(--text);border:1px solid var(--line);padding:10px 12px;border-radius:10px}.voice-controls button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(255,128,89,.8);outline-offset:2px}@11px 12px;border-radius:10px;outline:none}.field input:focus,.field select:focus{border-color:#b64d32}.check{display:flex;gap:9px;align-items:center;background:#0e1216;border:1px solid var(--line);padding:10px;border-radius:10px;color:#c2c9d1;font-size:12px}.check input{accent-color:var(--accent)}.primary{width:100%;border:0;background:linear-gradient(135deg,#ff815a,#ff5634);color:white;padding:13px;border-radius:11px;font-weight:800;cursor:pointer;margin-top:14px}.primary:disabled{opacity:.6}.results{min-height:500px}.empty{display:grid;place-items:center;min-height:430px;text-align:center;color:var(--muted);padding:40px}.empty .icon{font-size:42px;margin-bottom:12px}.scheme{background:#101419;border:1px solid var(--line);border-radius:15px;padding:17px;margin-bottom:12px}.scheme-head{display:flex;justify-content:space-between;gap:15px}.scheme h3{margin:0 0 7px;font-size:16px}.scheme .ministry{font-size:11px;color:var(--muted)}.score{min-width:70px;text-align:right}.score b{font-size:22px;color:var(--good)}.bar{height:5px;background:#272e35;border-radius:8px;overflow:hidden;margin:9px 0 12px}.bar i{display:block;height:100%;background:var(--good);border-radius:8px}.benefit{font-size:12px;color:#c8ced5;line-height:1.5}.reasons{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.reason{font-size:10px;background:#17221c;color:#8ee1b1;border:1px solid #264433;border-radius:999px;padding:5px 8px}.scheme-foot{display:flex;justify-content:space-between;align-items:center;margin-top:13px}.link{color:#ff9b7a;text-decoration:none;font-size:11px;font-weight:700}.chat{margin-top:18px}.chatbox{height:220px;overflow:auto;background:#0d1115;border:1px solid var(--line);border-radius:12px;padding:12px}.msg{max-width:88%;padding:9px 11px;border-radius:11px;margin:7px 0;font-size:12px;line-height:1.5}.bot{background:#191f25;color:#d8dee5}.user{background:#4a241a;margin-left:auto}.chatrow{display:flex;gap:8px;margin-top:9px}.chatrow input{flex:1;background:#0e1216;color:white;border:1px solid var(--line);padding:10px;border-radius:10px}.chatrow button{border:1px solid var(--line);background:#191f25;color:white;border-radius:10px;padding:0 15px;cursor:pointer}.notice{font-size:10px;color:#727c86;line-height:1.5;margin-top:12px}.loading{color:var(--muted);padding:30px}.toast{position:fixed;right:20px;bottom:20px;background:#161c21;border:1px solid var(--line);padding:12px 14px;border-radius:10px;display:none;font-size:12px}@media(max-width:900px){.hero,.layout{grid-template-columns:1fr}.hero h1{font-size:30px}}@media(max-width:520px){.app{padding:14px}.form{grid-template-columns:1fr}.field.full{grid-column:auto}.top .badge{display:none}}
 </style></head>
 <body><div class="app">
 <header class="top"><div class="brand"><div class="logo">SA</div><div><b>SahayakAI</b><small>AI-driven scheme matching for marginalized entrepreneurs</small></div></div><div class="badge">SIH26092 • MVP</div></header>
@@ -25,6 +25,7 @@
 <div class="field full"><label class="check"><input id="entrepreneur" type="checkbox" checked> I am starting or running a business</label></div>
 <div class="field"><label class="check"><input id="student" type="checkbox"> I am a student</label></div><div class="field"><label class="check"><input id="rural" type="checkbox"> I live in a rural area</label></div>
 </div><button class="primary" onclick="findMatches()">✨ Find my best schemes</button><div class="notice">Demo data is for hackathon prototyping. Always verify the latest official guidelines, income limits, documents and application channel before applying.</div></div>
+<div class="card voice-card"><div class="section-title"><h2>Voice guided form</h2><span class="step">Accessible conversation</span></div><div class="voice-controls"><label class="field-label" for="voiceLanguage">Language</label><select id="voiceLanguage" aria-label="Select spoken language"><option value="en">English</option><option value="hi">हिन्दी</option></select><div class="voice-buttons"><button type="button" class="primary" id="startVoiceButton">Start Conversation</button><button type="button" id="voicePreviousButton">Previous</button><button type="button" id="voiceRepeatButton">Repeat</button><button type="button" id="voiceStopButton" class="danger">Stop / Cancel</button></div></div><div class="voice-status-block"><span id="voiceStateBadge" class="voice-state ready" aria-live="polite">Ready</span><span id="voiceProgress" class="voice-progress">Question 0 of 0</span></div><div id="voiceQuestionBox" class="voice-question-box" aria-live="polite"><p id="voiceQuestionText">Choose a language and start a conversation.</p></div><div class="voice-transcript" aria-live="polite"><strong>You said:</strong> <span id="voiceTranscript">No answer yet.</span></div><div id="voiceConfirmation" class="voice-confirmation hidden" aria-live="polite"></div></div>
 <div class="card chat"><div class="section-title"><h2>Ask SahayakAI</h2><span class="step">Explain my result</span></div><div id="chatbox" class="chatbox"><div class="msg bot">Hi! Complete your profile and ask me things like “Why am I eligible?” or “How does matching work?”</div></div><div class="chatrow"><input id="chatinput" placeholder="Ask about eligibility…" onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">Send</button></div></div></aside>
 <main><div class="card results"><div class="section-title"><h2>Recommended schemes</h2><span id="resultMeta" class="step">No profile scored yet</span></div><div id="results" class="empty"><div><div class="icon">◎</div><b>Personalized recommendations will appear here.</b><p>We combine rule-based eligibility with semantic matching and show why each scheme matched.</p></div></div></div></main></div></div><div id="toast" class="toast"></div>
 <script>
@@ -109,5 +110,295 @@ function rememberMatchContext(d){if(d.results?.length){selectedSchemeId=d.result
 render=function(d){baseRender(d);document.querySelectorAll('.scheme').forEach((card,index)=>{const result=d.results[index];const explanation=document.createElement('div');explanation.style.cssText='margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;color:#c8ced5;line-height:1.5';const why=result.why_match?.slice(0,3)??[];const verification=result.verification?.message??'';explanation.innerHTML=`<b>Why this matched</b><br>${why.map(esc).join('<br>')||'No additional explanation available.'}<br><span style="color:#ffb09a">${esc(verification)}</span>`;card.appendChild(explanation)});const other=[...(d.needs_information??[]),...(d.not_eligible??[])];if(other.length){const section=document.createElement('div');section.style.cssText='margin-top:16px;padding:14px;background:#101419;border:1px solid var(--line);border-radius:12px;font-size:12px;color:#c8ced5;line-height:1.5';section.innerHTML='<b>Other eligibility outcomes</b>'+other.slice(0,4).map(item=>{const details=item.status==='needs_information'?item.missing_information.map(x=>x.message):item.why_not_eligible;return `<p><strong>${esc(item.scheme.name)}</strong> — ${esc(item.status)}<br>${details.map(esc).join('<br>')}</p>`}).join('');$('results').appendChild(section)}};
 const renderedWithContext=render;
 render=function(d){rememberMatchContext(d);renderedWithContext(d)};
+
+const VOICE_LANGUAGES = {
+  en: { label: 'English', speechLang: 'en-IN', recognitionLang: 'en-IN' },
+  hi: { label: 'हिन्दी', speechLang: 'hi-IN', recognitionLang: 'hi-IN' }
+};
+
+const VOICE_QUESTION_CONFIG = [
+  { key: 'state', type: 'select', required: true, text: { en: 'Which state are you in?', hi: 'आप किस राज्य में हैं?' }, options: ['Andhra Pradesh', 'Delhi', 'Gujarat', 'Karnataka', 'Maharashtra', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+  { key: 'social_category', type: 'select', required: true, text: { en: 'What is your social category?', hi: 'आपकी सामाजिक श्रेणी क्या है?' }, options: ['SC', 'ST', 'OBC', 'General', 'EWS'] },
+  { key: 'annual_income', type: 'number', required: true, text: { en: 'What is your annual family income in rupees?', hi: 'आपकी वार्षिक पारिवारिक आय रुपये में क्या है?' } },
+  { key: 'age', type: 'number', required: true, text: { en: 'How old are you?', hi: 'आपकी उम्र कितनी है?' } },
+  { key: 'entrepreneur', type: 'boolean', required: true, text: { en: 'Are you starting or running a business?', hi: 'क्या आप कोई व्यवसाय शुरू कर रहे हैं या चल रहा है?' } },
+  { key: 'business_stage', type: 'select', required: true, text: { en: 'Are you in the idea stage, early stage, or an existing business?', hi: 'आप विचार चरण, प्रारंभिक चरण, या मौजूदा व्यवसाय में हैं?' }, options: ['Idea', 'Early', 'Existing'] },
+  { key: 'sector', type: 'select', required: true, text: { en: 'Which business sector are you in?', hi: 'आप किस व्यवसाय क्षेत्र में हैं?' }, options: ['Technology', 'Manufacturing', 'Services', 'Retail', 'Agriculture'] },
+  { key: 'student', type: 'boolean', required: true, text: { en: 'Are you a student?', hi: 'क्या आप छात्र हैं?' } }
+];
+
+const voiceState = {
+  language: 'en',
+  index: 0,
+  plan: [],
+  answers: {},
+  status: 'idle',
+  recognition: null,
+  listening: false,
+  speaking: false,
+  cancelRequested: false,
+  confirmationMode: false,
+  history: []
+};
+
+function normalizeVoiceText(value) {
+  return String(value || '').toLowerCase().replace(/rupees?/g, '').replace(/rs\.?/g, '').replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function parseSimpleNumberWords(raw) {
+  const words = { zero:0, one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10, eleven:11, twelve:12, thirteen:13, fourteen:14, fifteen:15, sixteen:16, seventeen:17, eighteen:18, nineteen:19, twenty:20, thirty:30, forty:40, fifty:50, sixty:60, seventy:70, eighty:80, ninety:90, hundred:100, thousand:1000, lakh:100000, lac:100000, lakhs:100000, crore:10000000, crores:10000000 };
+  const value = String(raw || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!value) return null;
+  if (/^\d+(?:\.\d+)?$/.test(value)) return Number(value);
+  let total = 0;
+  let current = 0;
+  for (const token of value.split(' ')) {
+    if (!token) continue;
+    if (/^\d+$/.test(token)) { current += Number(token); continue; }
+    if (token in words) {
+      const unitValue = words[token];
+      if (unitValue >= 100000) { total += current * unitValue; current = 0; }
+      else if (unitValue >= 100) { current *= unitValue; }
+      else { current += unitValue; }
+    }
+  }
+  total += current;
+  return total || null;
+}
+function parseIncomeValue(raw) {
+  const cleaned = normalizeVoiceText(raw);
+  if (!cleaned) return null;
+  if (/\d/.test(cleaned)) {
+    if (/\b(lakh|lac|lakhs|crore|crores|thousand|hundred)\b/.test(cleaned)) {
+      const tokens = cleaned.split(/\s+/);
+      let total = 0;
+      let current = 0;
+      for (const token of tokens) {
+        if (!token) continue;
+        if (/^\d+(?:\.\d+)?$/.test(token)) { current += Number(token); continue; }
+        if (token === 'hundred') current *= 100;
+        else if (token === 'thousand') { total += current * 1000; current = 0; }
+        else if (token === 'lakh' || token === 'lac' || token === 'lakhs') { total += current * 100000; current = 0; }
+        else if (token === 'crore' || token === 'crores') { total += current * 10000000; current = 0; }
+      }
+      total += current;
+      if (Number.isFinite(total) && total > 0) return total;
+    }
+    const match = cleaned.match(/\d+(?:\.\d+)?/g);
+    if (match && match.length) return Number(match[0]);
+  }
+  const parsed = parseSimpleNumberWords(cleaned);
+  return (parsed !== null && Number.isFinite(parsed)) ? parsed : null;
+}
+function parseAgeValue(raw) { const cleaned = normalizeVoiceText(raw); if (!cleaned) return null; const match = cleaned.match(/\d+/); if (match) return Number(match[0]); const parsed = parseSimpleNumberWords(cleaned); return (parsed !== null && Number.isFinite(parsed)) ? parsed : null; }
+function parseBooleanValue(raw) {
+  const cleaned = normalizeVoiceText(raw);
+  if (!cleaned) return null;
+  if (['yes','yeah','yep','true','affirmative','sure','done'].includes(cleaned)) return true;
+  if (['no','nope','false','negative','not really'].includes(cleaned)) return false;
+  if (cleaned.includes('yes')) return true;
+  if (cleaned.includes('no')) return false;
+  if (cleaned.includes('business') || cleaned.includes('entrepreneur') || cleaned.includes('startup') || cleaned.includes('shop')) return true;
+  if (cleaned.includes('student') || cleaned.includes('college') || cleaned.includes('university')) return false;
+  return null;
+}
+function parseStateValue(raw) {
+  const cleaned = normalizeVoiceText(raw);
+  const aliases = { 'andhra pradesh':'Andhra Pradesh','delhi':'Delhi','gujarat':'Gujarat','karnataka':'Karnataka','maharashtra':'Maharashtra','tamil nadu':'Tamil Nadu','telangana':'Telangana','uttar pradesh':'Uttar Pradesh','west bengal':'West Bengal','other':'Other' };
+  return aliases[cleaned] || null;
+}
+function parseCategoryValue(raw) {
+  const cleaned = normalizeVoiceText(raw);
+  const aliases = { 'sc':'SC','scheduled caste':'SC','st':'ST','scheduled tribe':'ST','obc':'OBC','other backward class':'OBC','general':'General','gen':'General','ews':'EWS','economically weaker section':'EWS' };
+  return aliases[cleaned] || null;
+}
+function parseStageValue(raw) {
+  const cleaned = normalizeVoiceText(raw);
+  const aliases = { 'idea':'Idea','new business':'Idea','startup':'Idea','early':'Early','early stage':'Early','existing':'Existing','running business':'Existing','already running':'Existing' };
+  return aliases[cleaned] || null;
+}
+function parseSectorValue(raw) {
+  const cleaned = normalizeVoiceText(raw);
+  const aliases = { 'technology':'Technology','tech':'Technology','manufacturing':'Manufacturing','services':'Services','service':'Services','retail':'Retail','shop':'Retail','agriculture':'Agriculture','farm':'Agriculture','farming':'Agriculture' };
+  return aliases[cleaned] || null;
+}
+function getCurrentQuestion() { return voiceState.plan[voiceState.index] || null; }
+function setVoiceStatus(status, text) { const badge = $('voiceStateBadge'); badge.className = 'voice-state ' + status; badge.textContent = text || status.charAt(0).toUpperCase() + status.slice(1); voiceState.status = status; }
+function updateVoiceTranscript(text) { $('voiceTranscript').textContent = text || 'No answer yet.'; }
+function applyVoiceValue(questionKey, value) {
+  const fieldMap = { state:'state', social_category:'category', annual_income:'income', age:'age', entrepreneur:'entrepreneur', business_stage:'stage', sector:'sector', student:'student' };
+  const fieldId = fieldMap[questionKey]; if (!fieldId) return;
+  const el = $(fieldId); if (!el) return;
+  if (el.type === 'checkbox') el.checked = Boolean(value);
+  else if (el.tagName === 'SELECT') {
+    if (value !== null && value !== undefined && [...el.options].map(option => option.value).includes(String(value))) el.value = String(value);
+    else if (value !== null && value !== undefined) el.value = String(value);
+  } else if (el.tagName === 'INPUT') el.value = String(value ?? '');
+}
+function answerParser(questionKey, transcript) {
+  const value = String(transcript || '').trim();
+  if (!value) return null;
+  if (questionKey === 'state') return parseStateValue(value);
+  if (questionKey === 'social_category') return parseCategoryValue(value);
+  if (questionKey === 'annual_income') return parseIncomeValue(value);
+  if (questionKey === 'age') return parseAgeValue(value);
+  if (questionKey === 'entrepreneur') return parseBooleanValue(value);
+  if (questionKey === 'business_stage') return parseStageValue(value);
+  if (questionKey === 'sector') return parseSectorValue(value);
+  if (questionKey === 'student') return parseBooleanValue(value);
+  return value;
+}
+function speakText(message, onDone) {
+  if (!('speechSynthesis' in window)) { if (onDone) onDone(); return; }
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.lang = VOICE_LANGUAGES[voiceState.language].speechLang;
+  utterance.onend = () => { voiceState.speaking = false; if (onDone) onDone(); };
+  utterance.onerror = () => { voiceState.speaking = false; setVoiceStatus('error', 'Speaking error'); if (onDone) onDone(); };
+  voiceState.speaking = true;
+  setVoiceStatus('speaking', 'Speaking');
+  speechSynthesis.speak(utterance);
+}
+function ensureRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return null;
+  if (!voiceState.recognition) {
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = VOICE_LANGUAGES[voiceState.language].recognitionLang;
+    recognition.onstart = () => { voiceState.listening = true; setVoiceStatus('listening', 'Listening'); };
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results).map(result => result[0].transcript).join(' ').trim();
+      if (!transcript) { setVoiceStatus('error', 'No speech detected'); updateVoiceTranscript('No speech detected. Please try again.'); return; }
+      const question = getCurrentQuestion();
+      if (!question) return;
+      const parsed = answerParser(question.key, transcript);
+      if (parsed === null || (question.type === 'number' && !Number.isFinite(Number(parsed)))) {
+        setVoiceStatus('error', 'Answer unclear'); updateVoiceTranscript(`I heard: ${transcript}. Please repeat or clarify.`); return;
+      }
+      voiceState.answers[question.key] = parsed;
+      applyVoiceValue(question.key, parsed);
+      updateVoiceTranscript(transcript);
+      voiceState.history.push({ question: question.key, answer: parsed, transcript });
+      setVoiceStatus('ready', 'Ready');
+      if (voiceState.index < voiceState.plan.length - 1) {
+        voiceState.index += 1;
+        setTimeout(() => presentCurrentQuestion(), 350);
+      } else {
+        setTimeout(() => showVoiceConfirmation(), 350);
+      }
+    };
+    recognition.onerror = (event) => { voiceState.listening = false; setVoiceStatus('error', 'Recognition error'); updateVoiceTranscript(event.error === 'no-speech' ? 'No speech detected. Please try again.' : 'Speech recognition is unavailable or failed. Please try again.'); };
+    recognition.onend = () => { voiceState.listening = false; if (!voiceState.cancelRequested && voiceState.status !== 'error' && !voiceState.confirmationMode) setVoiceStatus('ready', 'Ready'); };
+    voiceState.recognition = recognition;
+  }
+  voiceState.recognition.lang = VOICE_LANGUAGES[voiceState.language].recognitionLang;
+  return voiceState.recognition;
+}
+function presentCurrentQuestion() {
+  const question = getCurrentQuestion();
+  if (!question) { showVoiceConfirmation(); return; }
+  $('voiceProgress').textContent = `Question ${voiceState.index + 1} of ${voiceState.plan.length}`;
+  const text = question.text[voiceState.language] || question.text.en;
+  $('voiceQuestionText').textContent = text;
+  $('voiceConfirmation').classList.add('hidden');
+  $('voiceConfirmation').innerHTML = '';
+  voiceState.confirmationMode = false;
+  updateVoiceTranscript('No answer yet.');
+  speakText(text, () => {
+    setTimeout(() => {
+      if (voiceState.cancelRequested) return;
+      startListening();
+    }, 350);
+  });
+}
+function showVoiceConfirmation() {
+  const summaryItems = voiceState.plan.map((question) => {
+    const answer = voiceState.answers[question.key];
+    return `<li><strong>${question.key.replace('_', ' ')}:</strong> ${answer ?? 'not answered'}</li>`;
+  }).join('');
+  $('voiceConfirmation').innerHTML = `
+    <h3>Final confirmation</h3>
+    <p>Please confirm the information before recommending schemes.</p>
+    <ul>${summaryItems}</ul>
+    <div class="voice-confirmation-actions">
+      <button type="button" class="primary" id="confirmVoiceRecommendation">Confirm &amp; Recommend</button>
+      <button type="button" id="editVoiceAnswers">Back to questions</button>
+    </div>
+  `;
+  $('voiceConfirmation').classList.remove('hidden');
+  $('voiceQuestionText').textContent = 'Please confirm everything before the final recommendation.';
+  $('voiceProgress').textContent = `Question ${voiceState.plan.length} of ${voiceState.plan.length}`;
+  setVoiceStatus('confirming', 'Confirming');
+  const confirmButton = $('confirmVoiceRecommendation');
+  if (confirmButton) confirmButton.addEventListener('click', () => {
+    Object.entries(voiceState.answers).forEach(([key, value]) => applyVoiceValue(key, value));
+    lastProfile = profile();
+    speakText('Thank you. I have saved your answers and I am checking the relevant schemes now.', () => findMatches());
+    setVoiceStatus('ready', 'Ready');
+    $('voiceConfirmation').classList.add('hidden');
+    $('voiceQuestionText').textContent = 'Voice answers saved to the form.';
+  });
+  const editButton = $('editVoiceAnswers');
+  if (editButton) editButton.addEventListener('click', () => {
+    voiceState.confirmationMode = false;
+    voiceState.index = Math.max(0, voiceState.plan.length - 1);
+    presentCurrentQuestion();
+  });
+}
+function startVoiceConversation() {
+  if (!('speechSynthesis' in window) || !(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+    setVoiceStatus('error', 'Unsupported browser'); updateVoiceTranscript('This browser does not support speech recognition. Please use the regular form instead.'); return;
+  }
+  voiceState.plan = VOICE_QUESTION_CONFIG.map(question => ({ ...question }));
+  voiceState.answers = {};
+  voiceState.history = [];
+  voiceState.index = 0;
+  voiceState.cancelRequested = false;
+  voiceState.confirmationMode = false;
+  $('voiceConfirmation').classList.add('hidden');
+  $('voiceConfirmation').innerHTML = '';
+  presentCurrentQuestion();
+}
+function previousVoiceQuestion() {
+  if (voiceState.index > 0) {
+    voiceState.index -= 1;
+    const question = getCurrentQuestion();
+    if (!question) return;
+    $('voiceProgress').textContent = `Question ${voiceState.index + 1} of ${voiceState.plan.length}`;
+    $('voiceQuestionText').textContent = question.text[voiceState.language] || question.text.en;
+    updateVoiceTranscript(voiceState.answers[question.key] ? `Last answer: ${voiceState.answers[question.key]}` : 'No answer yet.');
+    speakText(question.text[voiceState.language] || question.text.en, () => startListening());
+  }
+}
+function repeatVoiceQuestion() {
+  const question = getCurrentQuestion();
+  if (!question) return;
+  const text = question.text[voiceState.language] || question.text.en;
+  $('voiceQuestionText').textContent = text;
+  speakText(text, () => startListening());
+}
+function stopVoiceConversation() {
+  voiceState.cancelRequested = true;
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  if (voiceState.recognition) { try { voiceState.recognition.stop(); } catch (error) {} }
+  setVoiceStatus('ready', 'Stopped');
+  $('voiceQuestionText').textContent = 'Conversation stopped. Choose Start Conversation to begin again.';
+  updateVoiceTranscript('Conversation cancelled.');
+}
+function startListening() {
+  const recognition = ensureRecognition();
+  if (!recognition) {
+    setVoiceStatus('error', 'Unsupported browser'); updateVoiceTranscript('This browser does not support speech recognition. Please use the regular form instead.'); return;
+  }
+  voiceState.cancelRequested = false;
+  try { recognition.start(); } catch (error) { setVoiceStatus('error', 'Restarting'); updateVoiceTranscript('The microphone is already in use. Please try again in a moment.'); }
+}
+
+$('startVoiceButton').addEventListener('click', startVoiceConversation);
+$('voicePreviousButton').addEventListener('click', previousVoiceQuestion);
+$('voiceRepeatButton').addEventListener('click', repeatVoiceQuestion);
+$('voiceStopButton').addEventListener('click', stopVoiceConversation);
+$('voiceLanguage').addEventListener('change', (event) => { voiceState.language = event.target.value; if (voiceState.recognition) voiceState.recognition.lang = VOICE_LANGUAGES[voiceState.language].recognitionLang; if (voiceState.plan.length && voiceState.index < voiceState.plan.length) { const current = getCurrentQuestion(); if (current) $('voiceQuestionText').textContent = current.text[voiceState.language] || current.text.en; } });
 init();
 </script></body></html>
