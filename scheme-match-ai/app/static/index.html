@@ -14,7 +14,7 @@
 <div class="field full"><label>Name</label><input id="name" placeholder="Your name"></div>
 <div class="field"><label>State</label><select id="state"><option>Andhra Pradesh</option><option>Delhi</option><option>Gujarat</option><option>Karnataka</option><option>Maharashtra</option><option>Tamil Nadu</option><option>Telangana</option><option>Uttar Pradesh</option><option>West Bengal</option><option>Other</option></select></div>
 <div class="field"><label>Age</label><input id="age" type="number" value="28" min="18"></div>
-<div class="field"><label>Social category</label><select id="category"><option>SC</option><option>ST</option><option>OBC</option><option>General</option></select></div>
+<div class="field"><label>Social category</label><select id="category"><option>SC</option><option>ST</option><option>OBC</option><option>General</option><option>EWS</option></select></div>
 <div class="field"><label>Annual family income (₹)</label><input id="income" type="number" value="350000"></div>
 <div class="field"><label>Sector</label><select id="sector"><option>Technology</option><option>Manufacturing</option><option>Services</option><option>Retail</option><option>Agriculture</option></select></div>
 <div class="field"><label>Business stage</label><select id="stage"><option>Idea</option><option>Early</option><option>Existing</option></select></div>
@@ -25,7 +25,7 @@
 <div class="field full"><label class="check"><input id="entrepreneur" type="checkbox" checked> I am starting or running a business</label></div>
 <div class="field"><label class="check"><input id="student" type="checkbox"> I am a student</label></div><div class="field"><label class="check"><input id="rural" type="checkbox"> I live in a rural area</label></div>
 </div><button class="primary" onclick="findMatches()">✨ Find my best schemes</button><div class="notice">Demo data is for hackathon prototyping. Always verify the latest official guidelines, income limits, documents and application channel before applying.</div></div>
-<div class="card voice-card"><div class="section-title"><h2>Voice guided form</h2><span class="step">Accessible conversation</span></div><div class="voice-controls"><label class="field-label" for="voiceLanguage">Language</label><select id="voiceLanguage" aria-label="Select spoken language"><option value="en">English</option><option value="hi">हिन्दी</option></select><div class="voice-buttons"><button type="button" class="primary" id="startVoiceButton">Start Conversation</button><button type="button" id="voiceStartAgainButton">Start Again</button><button type="button" id="voicePreviousButton">Previous</button><button type="button" id="voiceRepeatButton">Repeat</button><button type="button" id="voiceStopButton" class="danger">Stop / Cancel</button></div></div><div class="voice-status-block"><span id="voiceStateBadge" class="voice-state ready" aria-live="polite">Ready</span><span id="voiceProgress" class="voice-progress">Question 0 of 0</span></div><div id="voiceQuestionBox" class="voice-question-box" aria-live="polite"><p id="voiceQuestionText">Choose a language and start a conversation.</p></div><div class="voice-transcript" aria-live="polite"><strong>You said:</strong> <span id="voiceTranscript">No answer yet.</span></div><div id="voiceConfirmation" class="voice-confirmation hidden" aria-live="polite"></div></div>
+<div class="card voice-card"><div class="section-title"><h2>Voice guided form</h2><span class="step">Accessible conversation</span></div><div class="voice-controls"><label class="field-label" for="voiceLanguage">Language</label><select id="voiceLanguage" aria-label="Select spoken language"><option value="en">English</option><option value="hi">हिन्दी</option><option value="ta">தமிழ்</option></select><div class="voice-buttons"><button type="button" class="primary" id="startVoiceButton">Start Conversation</button><button type="button" id="voiceStartAgainButton">Start Again</button><button type="button" id="voicePreviousButton">Previous</button><button type="button" id="voiceRepeatButton">Repeat</button><button type="button" id="voiceStopButton" class="danger">Stop / Cancel</button></div></div><div class="voice-status-block"><span id="voiceStateBadge" class="voice-state ready" aria-live="polite">Ready</span><span id="voiceProgress" class="voice-progress">Question 0 of 0</span></div><div id="voiceQuestionBox" class="voice-question-box" aria-live="polite"><p id="voiceQuestionText">Choose a language and start a conversation.</p></div><div class="voice-transcript" aria-live="polite"><strong>You said:</strong> <span id="voiceTranscript">No answer yet.</span></div><div id="voiceManualAnswer" class="voice-manual-answer" hidden></div><div id="voiceConfirmation" class="voice-confirmation hidden" aria-live="polite"></div></div>
 <div class="card chat"><div class="section-title"><h2>Ask SahayakAI</h2><span class="step">Explain my result</span></div><div id="chatbox" class="chatbox"><div class="msg bot">Hi! Complete your profile and ask me things like “Why am I eligible?” or “How does matching work?”</div></div><div class="chatrow"><input id="chatinput" placeholder="Ask about eligibility…" onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">Send</button></div></div></aside>
 <main><div class="card results"><div class="section-title"><h2>Most Suitable Schemes</h2><span id="resultMeta" class="step">No profile scored yet</span></div><div id="results" class="empty"><div><div class="icon">◎</div><b>Personalized recommendations will appear here.</b><p>We show a short list of schemes that may help your business and explain why they matched.</p></div></div></div></main></div></div><div id="toast" class="toast"></div>
 <script>
@@ -115,18 +115,19 @@ render=function(d){rememberMatchContext(d);renderedWithContext(d)};
 
 const VOICE_LANGUAGES = {
   en: { label: 'English', speechLang: 'en-IN', recognitionLang: 'en-IN' },
-  hi: { label: 'हिन्दी', speechLang: 'hi-IN', recognitionLang: 'hi-IN' }
+  hi: { label: 'हिन्दी', speechLang: 'hi-IN', recognitionLang: 'hi-IN' },
+  ta: { label: 'தமிழ்', speechLang: 'ta-IN', recognitionLang: 'ta-IN' }
 };
 
 const VOICE_QUESTION_CONFIG = [
-  { key: 'state', type: 'select', required: true, text: { en: 'Which state are you in?', hi: 'आप किस राज्य में हैं?' }, options: ['Andhra Pradesh', 'Delhi', 'Gujarat', 'Karnataka', 'Maharashtra', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
-  { key: 'social_category', type: 'select', required: true, text: { en: 'What is your social category?', hi: 'आपकी सामाजिक श्रेणी क्या है?' }, options: ['SC', 'ST', 'OBC', 'General', 'EWS'] },
-  { key: 'annual_income', type: 'number', required: true, text: { en: 'What is your annual family income in rupees?', hi: 'आपकी वार्षिक पारिवारिक आय रुपये में क्या है?' } },
-  { key: 'age', type: 'number', required: true, text: { en: 'How old are you?', hi: 'आपकी उम्र कितनी है?' } },
-  { key: 'entrepreneur', type: 'boolean', required: true, text: { en: 'Are you starting or running a business?', hi: 'क्या आप कोई व्यवसाय शुरू कर रहे हैं या चल रहा है?' } },
-  { key: 'business_stage', type: 'select', required: true, text: { en: 'Are you in the idea stage, early stage, or an existing business?', hi: 'आप विचार चरण, प्रारंभिक चरण, या मौजूदा व्यवसाय में हैं?' }, options: ['Idea', 'Early', 'Existing'] },
-  { key: 'sector', type: 'select', required: true, text: { en: 'Which business sector are you in?', hi: 'आप किस व्यवसाय क्षेत्र में हैं?' }, options: ['Technology', 'Manufacturing', 'Services', 'Retail', 'Agriculture'] },
-  { key: 'student', type: 'boolean', required: true, text: { en: 'Are you a student?', hi: 'क्या आप छात्र हैं?' } }
+  { key: 'state', type: 'select', required: true, text: { en: 'Which state are you in?', hi: 'आप किस राज्य में हैं?', ta: 'நீங்கள் எந்த மாநிலத்தில் இருக்கிறீர்கள்?' }, options: ['Andhra Pradesh', 'Delhi', 'Gujarat', 'Karnataka', 'Maharashtra', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Other'] },
+  { key: 'social_category', type: 'select', required: true, text: { en: 'What is your social category?', hi: 'आपकी सामाजिक श्रेणी क्या है?', ta: 'உங்கள் சமூகப் பிரிவு என்ன?' }, options: ['SC', 'ST', 'OBC', 'General', 'EWS'] },
+  { key: 'annual_income', type: 'number', required: true, text: { en: 'What is your annual family income in rupees?', hi: 'आपकी वार्षिक पारिवारिक आय रुपये में क्या है?', ta: 'உங்கள் குடும்பத்தின் ஆண்டு வருமானம் எவ்வளவு?' } },
+  { key: 'age', type: 'number', required: true, text: { en: 'How old are you?', hi: 'आपकी उम्र कितनी है?', ta: 'உங்கள் வயது என்ன?' } },
+  { key: 'entrepreneur', type: 'boolean', required: true, text: { en: 'Are you starting or running a business?', hi: 'क्या आप कोई व्यवसाय शुरू कर रहे हैं या चला रहे हैं?', ta: 'நீங்கள் தொழிலைத் தொடங்குகிறீர்களா அல்லது நடத்துகிறீர்களா?' } },
+  { key: 'business_stage', type: 'select', required: true, text: { en: 'Are you in the idea stage, early stage, or an existing business?', hi: 'आप विचार चरण, प्रारंभिक चरण, या मौजूदा व्यवसाय में हैं?', ta: 'உங்கள் தொழில் யோசனை நிலையிலா, ஆரம்ப நிலையிலா அல்லது ஏற்கனவே நடக்கிறதா?' }, options: ['Idea', 'Early', 'Existing'] },
+  { key: 'sector', type: 'select', required: true, text: { en: 'Which business sector are you in?', hi: 'आप किस व्यवसाय क्षेत्र में हैं?', ta: 'உங்கள் தொழில் எந்தத் துறையைச் சேர்ந்தது?' }, options: ['Technology', 'Manufacturing', 'Services', 'Retail', 'Agriculture'] },
+  { key: 'student', type: 'boolean', required: true, text: { en: 'Are you a student?', hi: 'क्या आप छात्र हैं?', ta: 'நீங்கள் மாணவரா?' } }
 ];
 
 const VOICE_COPY = {
@@ -153,9 +154,21 @@ const VOICE_COPY = {
     unclear: 'मैं जवाब समझ नहीं सका। कृपया फिर से बोलें, या दोबारा सुनें या पीछे जाएं।',
     stopped: 'बातचीत रोक दी गई है। आप फिर से शुरू कर सकते हैं या फॉर्म का उपयोग कर सकते हैं।',
     final: (count, names) => count ? `आपकी जानकारी के आधार पर ${count} ऐसी योजनाएं मिली हैं जो आपके लिए उपयुक्त हो सकती हैं। सबसे उपयोगी योजनाएं हैं: ${names}।` : 'आपकी जानकारी के आधार पर कोई उपयुक्त योजना नहीं मिली। आप जवाब बदलकर फिर कोशिश कर सकते हैं।'
+  },
+  ta: {
+    welcome: 'உங்கள் தொழிலைப் பற்றி சில குறுகிய கேள்விகள் கேட்கிறேன். எப்போது வேண்டுமானாலும் மீண்டும் கேட்கலாம், பின்னால் செல்லலாம் அல்லது நிறுத்தலாம்.',
+    repeat: 'இந்தக் கேள்விக்கு மீண்டும் பதிலளிக்கவும்.', previous: 'முந்தைய கேள்விக்கு செல்கிறோம்.',
+    confirmation: 'முக்கியமான தகவல்களைச் சரிபார்க்கவும். உங்களுக்கு ஏற்ற திட்டங்களைப் பார்க்க உறுதிப்படுத்தவும் அல்லது பதிலை மாற்ற பின்னால் செல்லவும்.',
+    confirmationTitle: 'இறுதி சரிபார்ப்பு', confirmationBody: 'உங்களுக்கு ஏற்ற திட்டங்களைத் தேடும் முன் முக்கியமான தகவல்களைச் சரிபார்க்கவும்.', confirm: 'உறுதிப்படுத்தி திட்டங்களைத் தேடு', back: 'கேள்விகளுக்குத் திரும்பு', change: 'மாற்று',
+    saved: 'உங்கள் பதில்கள் சேமிக்கப்பட்டன. உங்களுக்கு ஏற்ற திட்டங்களைத் தேடுகிறேன்.',
+    unsupported: 'இந்த உலாவியில் குரல் உள்ளீடு கிடைக்கவில்லை. கீழே உள்ள படிவத்தைப் பயன்படுத்தலாம்.',
+    permission: 'மைக்ரோஃபோனைப் பயன்படுத்த முடியவில்லை. உலாவியில் அனுமதி அளிக்கவும் அல்லது படிவத்தைப் பயன்படுத்தவும்.',
+    unclear: 'பதில் புரியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது மீண்டும் கேட்கவும்.',
+    stopped: 'உரையாடல் நிறுத்தப்பட்டது. மீண்டும் தொடங்கலாம் அல்லது படிவத்தைப் பயன்படுத்தலாம்.',
+    final: (count, names) => count ? `உங்கள் பதில்களின் அடிப்படையில் உங்களுக்கு ஏற்றதாக இருக்கக்கூடிய ${count} திட்டங்கள் கிடைத்தன. முக்கியமான திட்டங்கள்: ${names}.` : 'உங்கள் பதில்களின் அடிப்படையில் பொருத்தமான திட்டம் கிடைக்கவில்லை. பதிலை மாற்றி மீண்டும் முயற்சிக்கலாம்.'
   }
 };
-function voiceText(key) { return VOICE_COPY[voiceState.language][key] || VOICE_COPY.en[key]; }
+function voiceText(key) { return (VOICE_COPY[voiceState.language] || VOICE_COPY.en)[key] || VOICE_COPY.en[key]; }
 
 const voiceState = {
   language: 'en',
@@ -170,7 +183,8 @@ const voiceState = {
   confirmationMode: false,
   history: [],
   active: false,
-  retries: 0
+  retries: 0,
+  manualTimer: null
 };
 
 function normalizeVoiceText(value) {
@@ -235,12 +249,12 @@ function parseBooleanValue(raw) {
 }
 function parseStateValue(raw) {
   const cleaned = normalizeVoiceText(raw);
-  const aliases = { 'andhra pradesh':'Andhra Pradesh','delhi':'Delhi','gujarat':'Gujarat','karnataka':'Karnataka','maharashtra':'Maharashtra','tamil nadu':'Tamil Nadu','telangana':'Telangana','uttar pradesh':'Uttar Pradesh','west bengal':'West Bengal','other':'Other' };
+  const aliases = { 'andhra pradesh':'Andhra Pradesh','delhi':'Delhi','gujarat':'Gujarat','karnataka':'Karnataka','maharashtra':'Maharashtra','tamil nadu':'Tamil Nadu','tamilnadu':'Tamil Nadu','தமிழ்நாடு':'Tamil Nadu','telangana':'Telangana','uttar pradesh':'Uttar Pradesh','west bengal':'West Bengal','other':'Other' };
   return aliases[cleaned] || null;
 }
 function parseCategoryValue(raw) {
   const cleaned = normalizeVoiceText(raw);
-  const aliases = { 'sc':'SC','scheduled caste':'SC','st':'ST','scheduled tribe':'ST','obc':'OBC','other backward class':'OBC','general':'General','gen':'General','ews':'EWS','economically weaker section':'EWS' };
+  const aliases = { 'sc':'SC','scheduled caste':'SC','பட்டியல் சாதி':'SC','st':'ST','scheduled tribe':'ST','பட்டியல் பழங்குடி':'ST','obc':'OBC','other backward class':'OBC','பிற்படுத்தப்பட்டோர்':'OBC','general':'General','gen':'General','பொது':'General','ews':'EWS','economically weaker section':'EWS' };
   return aliases[cleaned] || null;
 }
 function parseStageValue(raw) {
@@ -279,13 +293,67 @@ function answerParser(questionKey, transcript) {
   if (questionKey === 'student') return parseBooleanValue(value);
   return value;
 }
+function questionLabel(question) {
+  const labels = { state: 'Choose your state', social_category: 'Choose your social category', annual_income: 'Enter annual family income', age: 'Enter your age', entrepreneur: 'Are you starting or running a business?', business_stage: 'Choose business stage', sector: 'Choose business sector', student: 'Are you a student?' };
+  return labels[question.key] || 'Enter your answer';
+}
+function showManualAnswer(message) {
+  const question = getCurrentQuestion();
+  if (!question) return;
+  if (voiceState.manualTimer) clearTimeout(voiceState.manualTimer);
+  setVoiceStatus('error', 'Answer manually');
+  const container = $('voiceManualAnswer');
+  let control = '';
+  if (question.type === 'select') control = `<select id="voiceManualValue" aria-label="${questionLabel(question)}">${question.options.map(option => `<option value="${esc(option)}">${esc(option)}</option>`).join('')}</select>`;
+  else if (question.type === 'boolean') control = `<select id="voiceManualValue" aria-label="${questionLabel(question)}"><option value="true">Yes</option><option value="false">No</option></select>`;
+  else control = `<input id="voiceManualValue" type="${question.type === 'number' ? 'number' : 'text'}" inputmode="${question.type === 'number' ? 'numeric' : 'text'}" aria-label="${questionLabel(question)}">`;
+  container.innerHTML = `<label for="voiceManualValue">${message || 'Voice input paused. You can answer this question manually.'}</label>${control}<div class="voice-manual-actions"><button type="button" class="primary" id="voiceManualSubmit">Use this answer</button><button type="button" id="voiceManualRetry">Try voice again</button></div>`;
+  container.hidden = false;
+  $('voiceManualSubmit').addEventListener('click', () => submitManualAnswer());
+  $('voiceManualRetry').addEventListener('click', () => { container.hidden = true; repeatVoiceQuestion(); });
+  $('voiceManualValue').focus();
+}
+function submitManualAnswer() {
+  const question = getCurrentQuestion();
+  const control = $('voiceManualValue');
+  if (!question || !control) return;
+  let value = control.value;
+  if (question.type === 'number') value = Number(value);
+  if (question.type === 'boolean') value = value === 'true';
+  if (question.type === 'number' && !Number.isFinite(value)) { control.focus(); return; }
+  advanceVoiceAnswer(value, value === true ? 'Yes' : value === false ? 'No' : String(value));
+}
+function advanceVoiceAnswer(value, transcript) {
+  const question = getCurrentQuestion();
+  if (!question) return;
+  voiceState.retries = 0;
+  if (voiceState.manualTimer) clearTimeout(voiceState.manualTimer);
+  voiceState.answers[question.key] = value;
+  applyVoiceValue(question.key, value);
+  updateVoiceTranscript(transcript);
+  voiceState.history.push({ question: question.key, answer: value, transcript });
+  $('voiceManualAnswer').hidden = true;
+  setVoiceStatus('ready', 'Ready');
+  if (voiceState.index < voiceState.plan.length - 1) { voiceState.index += 1; setTimeout(() => presentCurrentQuestion(), 350); }
+  else setTimeout(() => showVoiceConfirmation(), 350);
+}
 function speakText(message, onDone) {
   if (!('speechSynthesis' in window)) { if (onDone) onDone(); return; }
   speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(message);
   utterance.lang = VOICE_LANGUAGES[voiceState.language].speechLang;
-  utterance.onend = () => { voiceState.speaking = false; if (onDone) onDone(); };
-  utterance.onerror = () => { voiceState.speaking = false; setVoiceStatus('error', 'Speaking error'); if (onDone) onDone(); };
+  let finished = false;
+  const finish = (failed = false) => {
+    if (finished) return;
+    finished = true;
+    clearTimeout(fallbackTimer);
+    voiceState.speaking = false;
+    if (failed) setVoiceStatus('error', 'Speaking error');
+    if (onDone) onDone();
+  };
+  const fallbackTimer = setTimeout(() => finish(false), Math.max(5000, String(message || '').length * 70));
+  utterance.onend = () => finish(false);
+  utterance.onerror = () => finish(true);
   voiceState.speaking = true;
   setVoiceStatus('speaking', 'Speaking');
   speechSynthesis.speak(utterance);
@@ -303,7 +371,7 @@ function ensureRecognition() {
       const latest = event.results[event.results.length - 1];
       const transcript = Array.from(event.results).map(result => result[0].transcript).join(' ').trim();
       if (!latest.isFinal) { updateVoiceTranscript(transcript); return; }
-      if (!transcript) { voiceState.retries += 1; setVoiceStatus('error', 'No speech detected'); updateVoiceTranscript(voiceText('unclear')); if (voiceState.retries <= 2) setTimeout(() => repeatVoiceQuestion(), 600); return; }
+      if (!transcript) { voiceState.retries += 1; setVoiceStatus('error', 'No speech detected'); updateVoiceTranscript(voiceText('unclear')); if (voiceState.retries <= 2) setTimeout(() => repeatVoiceQuestion(), 600); else showManualAnswer(voiceText('unclear')); return; }
       const question = getCurrentQuestion();
       if (!question) return;
       const parsed = answerParser(question.key, transcript);
@@ -314,18 +382,7 @@ function ensureRecognition() {
         if (voiceState.retries <= 2) setTimeout(() => repeatVoiceQuestion(), 600);
         return;
       }
-      voiceState.retries = 0;
-      voiceState.answers[question.key] = parsed;
-      applyVoiceValue(question.key, parsed);
-      updateVoiceTranscript(transcript);
-      voiceState.history.push({ question: question.key, answer: parsed, transcript });
-      setVoiceStatus('ready', 'Ready');
-      if (voiceState.index < voiceState.plan.length - 1) {
-        voiceState.index += 1;
-        setTimeout(() => presentCurrentQuestion(), 350);
-      } else {
-        setTimeout(() => showVoiceConfirmation(), 350);
-      }
+      advanceVoiceAnswer(parsed, transcript);
     };
     recognition.onerror = (event) => {
       voiceState.listening = false;
@@ -334,6 +391,7 @@ function ensureRecognition() {
       setVoiceStatus('error', permissionError ? 'Microphone unavailable' : 'Recognition error');
       updateVoiceTranscript(permissionError ? voiceText('permission') : voiceText('unclear'));
       if (!permissionError && voiceState.retries <= 2 && voiceState.active) setTimeout(() => repeatVoiceQuestion(), 600);
+      else if (voiceState.active) showManualAnswer(permissionError ? voiceText('permission') : voiceText('unclear'));
     };
     recognition.onend = () => { voiceState.listening = false; if (!voiceState.cancelRequested && voiceState.status !== 'error' && !voiceState.confirmationMode) setVoiceStatus('ready', 'Ready'); };
     voiceState.recognition = recognition;
@@ -349,6 +407,13 @@ function presentCurrentQuestion() {
   $('voiceQuestionText').textContent = text;
   $('voiceConfirmation').classList.add('hidden');
   $('voiceConfirmation').innerHTML = '';
+  $('voiceManualAnswer').hidden = true;
+  $('voiceManualAnswer').innerHTML = '';
+  if (voiceState.manualTimer) clearTimeout(voiceState.manualTimer);
+  const questionIndex = voiceState.index;
+  voiceState.manualTimer = setTimeout(() => {
+    if (voiceState.active && voiceState.index === questionIndex && !voiceState.answers[question.key]) showManualAnswer('Voice input is taking too long. Choose or enter your answer below to continue.');
+  }, 12000);
   voiceState.confirmationMode = false;
   updateVoiceTranscript('No answer yet.');
   speakText(text, () => {
@@ -418,9 +483,8 @@ function announceVoiceResult(data) {
 }
 function startVoiceConversation() {
   if (voiceState.active) return;
-  if (!('speechSynthesis' in window) || !(window.SpeechRecognition || window.webkitSpeechRecognition)) {
-    setVoiceStatus('error', 'Unsupported browser'); updateVoiceTranscript(voiceText('unsupported')); return;
-  }
+  const recognitionAvailable = Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+  if (!recognitionAvailable) setVoiceStatus('error', 'Manual input');
   voiceState.plan = VOICE_QUESTION_CONFIG.map(question => ({ ...question }));
   voiceState.answers = {};
   voiceState.history = [];
@@ -431,7 +495,8 @@ function startVoiceConversation() {
   voiceState.retries = 0;
   $('voiceConfirmation').classList.add('hidden');
   $('voiceConfirmation').innerHTML = '';
-  speakText(voiceText('welcome'), () => presentCurrentQuestion());
+  if ('speechSynthesis' in window) speakText(voiceText('welcome'), () => presentCurrentQuestion());
+  else { updateVoiceTranscript(voiceText('unsupported')); presentCurrentQuestion(); }
 }
 function previousVoiceQuestion() {
   if (!voiceState.active) return;
@@ -467,7 +532,7 @@ function startListening() {
   if (!voiceState.active || voiceState.listening || voiceState.speaking) return;
   const recognition = ensureRecognition();
   if (!recognition) {
-    setVoiceStatus('error', 'Unsupported browser'); updateVoiceTranscript(voiceText('unsupported')); return;
+    setVoiceStatus('error', 'Manual input'); updateVoiceTranscript(voiceText('unsupported')); showManualAnswer(voiceText('unsupported')); return;
   }
   voiceState.cancelRequested = false;
   try { recognition.start(); } catch (error) { setVoiceStatus('error', 'Restarting'); updateVoiceTranscript('The microphone is already in use. Please try again in a moment.'); }
@@ -494,7 +559,7 @@ $('voiceLanguage').addEventListener('change', (event) => {
   if (wasActive) { voiceState.cancelRequested = false; voiceState.active = true; setTimeout(() => presentCurrentQuestion(), 200); }
 });
 const styleFix = document.createElement('style');
-styleFix.textContent = '.field input,.field select{padding:10px 12px;border-radius:10px}.voice-controls button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(255,128,89,.8);outline-offset:2px}';
+styleFix.textContent = '.card,.layout,aside,main,.form,.field,.voice-card,.voice-controls,.voice-question-box,.voice-manual-answer{min-width:0;max-width:100%}.form{grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden}.field input,.field select,.field textarea{width:100%;min-width:0;max-width:100%;padding:10px 12px;border-radius:10px}.voice-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}.voice-buttons button,.voice-manual-answer input,.voice-manual-answer select{min-width:0;max-width:100%;width:100%}.voice-question-box p,.voice-transcript,.voice-confirmation{overflow-wrap:anywhere}.voice-manual-answer{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#10161b}.voice-manual-answer[hidden]{display:none}.voice-manual-answer label{font-size:12px;color:#c2c9d1}.voice-manual-actions{display:flex;gap:8px}.voice-manual-actions button{flex:1;min-height:44px}.voice-controls button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(255,128,89,.8);outline-offset:2px}@media(max-width:700px){.form{grid-template-columns:minmax(0,1fr)}.field.full{grid-column:auto}.voice-buttons{grid-template-columns:1fr 1fr}.card{padding:16px}.layout{grid-template-columns:minmax(0,1fr)}}';
 document.head.appendChild(styleFix);
 init();
 </script></body></html>
